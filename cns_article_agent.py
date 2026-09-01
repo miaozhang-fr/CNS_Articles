@@ -2,42 +2,28 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V3.5 — Scientific Text Retrieval Diagnostic
+CNS Article Agent V4 — OpenAI Analysis Test
 
 Targets:
-- Nature  -> Article
-- Science -> Research Article
-- Cell    -> Article
+Nature  -> Article
+Science -> Research Article
+Cell    -> Article
 
-Article-type rules established by V2:
-- Nature:
-    RSS candidate -> official Nature page
-    citation_article_type == "Article"
-- Science:
-    RSS type == "Research Article"
-- Cell:
-    RSS type == "Article"
+Purpose:
+- Retrieve scientific text
+- Select 6 diagnostic papers
+- Ask OpenAI for structured scientific analysis
+- Test hallucination resistance on LOW evidence
 
-Scientific-text retrieval priority:
-1. Official publisher page
-2. PubMed
-3. Crossref
-4. RSS description
-
-Evidence quality:
-- HIGH   = official abstract / PubMed / Crossref abstract
-- MEDIUM = substantive RSS scientific text >= 500 chars
-- LOW    = short RSS scientific text >= 150 chars
-- NONE   = no usable scientific text
-
-No OpenAI.
-No email.
-No persistent dedup.
+NO EMAIL
+NO DEDUP
+NO SCHEDULE
 """
 
+import os
+import re
 import html
 import json
-import re
 import ssl
 import urllib.parse
 import urllib.request
@@ -53,11 +39,12 @@ from email.utils import parsedate_to_datetime
 
 TIMEOUT = 30
 MAX_FEED_ITEMS = 500
-MAX_TARGETS_PER_JOURNAL = 10
+
+OPENAI_MODEL = "gpt-5.6-luna"
 
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/3.5; +https://github.com/)"
+    "(compatible; CNSArticleAgent/4.0; +https://github.com/)"
 )
 
 JOURNALS = [
@@ -90,10 +77,13 @@ JOURNALS = [
 # ============================================================
 
 def clean(value):
+
     if not value:
         return ""
 
-    value = html.unescape(str(value))
+    value = html.unescape(
+        str(value)
+    )
 
     value = re.sub(
         r"<!\[CDATA\[|\]\]>",
@@ -117,10 +107,15 @@ def clean(value):
 
 
 def local_name(tag):
-    return tag.split("}", 1)[-1].lower()
+
+    return tag.split(
+        "}",
+        1,
+    )[-1].lower()
 
 
 def child_text(element, names):
+
     names = {
         name.lower()
         for name in names
@@ -128,7 +123,9 @@ def child_text(element, names):
 
     for child in list(element):
 
-        if local_name(child.tag) in names:
+        if local_name(
+            child.tag
+        ) in names:
 
             text = "".join(
                 child.itertext()
@@ -140,7 +137,11 @@ def child_text(element, names):
     return ""
 
 
-def descendant_texts(element, names):
+def descendant_texts(
+    element,
+    names,
+):
+
     names = {
         name.lower()
         for name in names
@@ -150,7 +151,9 @@ def descendant_texts(element, names):
 
     for child in element.iter():
 
-        if local_name(child.tag) in names:
+        if local_name(
+            child.tag
+        ) in names:
 
             text = clean(
                 "".join(
@@ -169,39 +172,34 @@ def descendant_texts(element, names):
 
 def extract_link(element):
 
-    for child in list(element):
-
-        if local_name(child.tag) == "link":
-
-            href = child.attrib.get(
-                "href"
-            )
-
-            if href:
-                return href.strip()
-
-            text = "".join(
-                child.itertext()
-            ).strip()
-
-            if text.startswith("http"):
-                return text
-
     for child in element.iter():
 
-        if local_name(child.tag) == "link":
+        if local_name(
+            child.tag
+        ) != "link":
+            continue
 
-            href = child.attrib.get(
-                "href"
-            )
+        href = child.attrib.get(
+            "href"
+        )
 
-            if href:
-                return href.strip()
+        if href:
+            return href.strip()
+
+        text = "".join(
+            child.itertext()
+        ).strip()
+
+        if text.startswith(
+            "http"
+        ):
+            return text
 
     return ""
 
 
 def normalize_doi(value):
+
     value = clean(value)
 
     value = re.sub(
@@ -247,7 +245,7 @@ def find_doi(*values):
 
 
 # ============================================================
-# DATE HANDLING
+# DATES
 # ============================================================
 
 def parse_date(value):
@@ -298,20 +296,6 @@ def parse_date(value):
     except Exception:
         pass
 
-    match = re.search(
-        r"\b(20\d{2})-(\d{2})-(\d{2})\b",
-        value,
-    )
-
-    if match:
-
-        return datetime(
-            int(match.group(1)),
-            int(match.group(2)),
-            int(match.group(3)),
-            tzinfo=timezone.utc,
-        )
-
     return None
 
 
@@ -338,7 +322,6 @@ def request_bytes(
 
         accept = (
             "application/rss+xml,"
-            "application/atom+xml,"
             "application/xml,"
             "text/xml,"
             "text/html;q=0.8"
@@ -385,20 +368,18 @@ def request_text(url):
         )
     )
 
-    text = raw.decode(
-        "utf-8",
-        errors="replace",
-    )
-
     return (
-        text,
+        raw.decode(
+            "utf-8",
+            errors="replace",
+        ),
         content_type,
         final_url,
     )
 
 
 # ============================================================
-# FEED PARSING
+# RSS
 # ============================================================
 
 def parse_feed(
@@ -436,7 +417,7 @@ def parse_feed(
             entry
         )
 
-        date_text = child_text(
+        date_raw = child_text(
             entry,
             [
                 "pubdate",
@@ -457,22 +438,26 @@ def parse_feed(
             ],
         )
 
-        identifiers = descendant_texts(
-            entry,
-            [
-                "identifier",
-                "doi",
-            ],
+        identifiers = (
+            descendant_texts(
+                entry,
+                [
+                    "identifier",
+                    "doi",
+                ],
+            )
         )
 
-        categories = descendant_texts(
-            entry,
-            [
-                "category",
-                "type",
-                "section",
-                "subject",
-            ],
+        categories = (
+            descendant_texts(
+                entry,
+                [
+                    "category",
+                    "type",
+                    "section",
+                    "subject",
+                ],
+            )
         )
 
         doi = find_doi(
@@ -488,19 +473,16 @@ def parse_feed(
                 "journal": (
                     journal["name"]
                 ),
-                "target_type": (
-                    journal[
-                        "target_type"
-                    ]
-                ),
                 "title": title,
-                "date_raw": date_text,
-                "date": format_date(
-                    date_text
-                ),
-                "doi": doi,
                 "url": link,
-                "feed_types": categories,
+                "doi": doi,
+                "date_raw": date_raw,
+                "date": format_date(
+                    date_raw
+                ),
+                "feed_types": (
+                    categories
+                ),
                 "feed_description": (
                     description
                 ),
@@ -512,41 +494,18 @@ def parse_feed(
 
 def fetch_feed(journal):
 
-    raw, content_type, final_url = (
-        request_bytes(
-            journal["feed"]
-        )
+    raw, _, _ = request_bytes(
+        journal["feed"]
     )
 
-    papers = parse_feed(
+    return parse_feed(
         raw,
         journal,
     )
 
-    print()
-    print(
-        journal["name"],
-        "feed items:",
-        len(papers),
-    )
-
-    print(
-        journal["name"],
-        "feed content-type:",
-        content_type,
-    )
-
-    print(
-        journal["name"],
-        "feed final URL:",
-        final_url,
-    )
-
-    return papers
-
 
 # ============================================================
-# HTML META
+# HTML METADATA
 # ============================================================
 
 def extract_meta_tag(
@@ -594,146 +553,17 @@ def extract_meta_tag(
     return ""
 
 
-# ============================================================
-# JSON-LD
-# ============================================================
-
-def extract_jsonld(page):
-
-    blocks = []
-
-    pattern = re.compile(
-        (
-            r'<script[^>]+'
-            r'type=["\']application/ld\+json["\']'
-            r'[^>]*>(.*?)</script>'
-        ),
-        flags=re.I | re.S,
-    )
-
-    for match in pattern.finditer(
-        page
-    ):
-
-        raw = html.unescape(
-            match.group(1)
-        ).strip()
-
-        try:
-
-            blocks.append(
-                json.loads(raw)
-            )
-
-        except Exception:
-            continue
-
-    return blocks
-
-
-def walk_json(value):
-
-    if isinstance(
-        value,
-        dict,
-    ):
-
-        yield value
-
-        for child in value.values():
-
-            yield from walk_json(
-                child
-            )
-
-    elif isinstance(
-        value,
-        list,
-    ):
-
-        for child in value:
-
-            yield from walk_json(
-                child
-            )
-
-
-# ============================================================
-# OFFICIAL PAGE ABSTRACT
-# ============================================================
-
-def abstract_from_jsonld(page):
+def official_abstract(page):
 
     candidates = []
 
-    for block in extract_jsonld(
-        page
-    ):
-
-        for obj in walk_json(
-            block
-        ):
-
-            abstract = obj.get(
-                "abstract"
-            )
-
-            if isinstance(
-                abstract,
-                str,
-            ):
-
-                text = clean(
-                    abstract
-                )
-
-                if len(text) >= 100:
-                    candidates.append(
-                        text
-                    )
-
-            description = obj.get(
-                "description"
-            )
-
-            if isinstance(
-                description,
-                str,
-            ):
-
-                text = clean(
-                    description
-                )
-
-                if len(text) >= 150:
-                    candidates.append(
-                        text
-                    )
-
-    if not candidates:
-        return ""
-
-    candidates.sort(
-        key=len,
-        reverse=True,
-    )
-
-    return candidates[0]
-
-
-def abstract_from_meta(page):
-
-    keys = [
+    for key in [
         "citation_abstract",
         "dc.description",
         "DC.description",
         "description",
         "og:description",
-    ]
-
-    candidates = []
-
-    for key in keys:
+    ]:
 
         text = extract_meta_tag(
             page,
@@ -744,6 +574,7 @@ def abstract_from_meta(page):
 
             candidates.append(
                 (
+                    len(text),
                     key,
                     text,
                 )
@@ -754,168 +585,21 @@ def abstract_from_meta(page):
         return "", ""
 
     candidates.sort(
-        key=lambda item: len(
-            item[1]
-        ),
-        reverse=True,
+        reverse=True
     )
 
-    key, text = candidates[0]
+    _, key, text = (
+        candidates[0]
+    )
 
     return (
         text,
-        "HTML_META:" + key,
+        "OFFICIAL_PAGE/" + key,
     )
-
-
-def abstract_from_html_patterns(
-    page
-):
-
-    patterns = [
-        (
-            r'<div[^>]+'
-            r'id=["\']Abs1-content["\']'
-            r'[^>]*>(.*?)</div>'
-        ),
-        (
-            r'<div[^>]+'
-            r'class=["\'][^"\']*abstract[^"\']*["\']'
-            r'[^>]*>(.*?)</div>'
-        ),
-        (
-            r'<section[^>]+'
-            r'class=["\'][^"\']*abstract[^"\']*["\']'
-            r'[^>]*>(.*?)</section>'
-        ),
-    ]
-
-    candidates = []
-
-    for pattern in patterns:
-
-        for match in re.finditer(
-            pattern,
-            page,
-            flags=re.I | re.S,
-        ):
-
-            text = clean(
-                match.group(1)
-            )
-
-            if len(text) >= 150:
-                candidates.append(
-                    text
-                )
-
-    if not candidates:
-        return ""
-
-    candidates.sort(
-        key=len,
-        reverse=True,
-    )
-
-    return candidates[0]
-
-
-def retrieve_page_abstract(url):
-
-    if not url:
-
-        return {
-            "status": "NO_URL",
-            "abstract": "",
-            "source": "",
-            "final_url": "",
-        }
-
-    try:
-
-        page, _, final_url = (
-            request_text(url)
-        )
-
-    except Exception as exc:
-
-        return {
-            "status": (
-                "FAILED:"
-                + type(exc).__name__
-            ),
-            "abstract": "",
-            "source": "",
-            "final_url": "",
-        }
-
-    # ------------------------------------
-    # Meta
-    # ------------------------------------
-
-    abstract, source = (
-        abstract_from_meta(
-            page
-        )
-    )
-
-    if abstract:
-
-        return {
-            "status": "OK",
-            "abstract": abstract,
-            "source": source,
-            "final_url": final_url,
-        }
-
-    # ------------------------------------
-    # JSON-LD
-    # ------------------------------------
-
-    abstract = abstract_from_jsonld(
-        page
-    )
-
-    if abstract:
-
-        return {
-            "status": "OK",
-            "abstract": abstract,
-            "source": "JSON_LD",
-            "final_url": final_url,
-        }
-
-    # ------------------------------------
-    # HTML abstract block
-    # ------------------------------------
-
-    abstract = (
-        abstract_from_html_patterns(
-            page
-        )
-    )
-
-    if abstract:
-
-        return {
-            "status": "OK",
-            "abstract": abstract,
-            "source": (
-                "HTML_ABSTRACT_BLOCK"
-            ),
-            "final_url": final_url,
-        }
-
-    return {
-        "status": "NO_ABSTRACT_FOUND",
-        "abstract": "",
-        "source": "",
-        "final_url": final_url,
-    }
 
 
 # ============================================================
-# PUBMED FALLBACK
+# PUBMED
 # ============================================================
 
 def pubmed_abstract_by_doi(doi):
@@ -963,13 +647,11 @@ def pubmed_abstract_by_doi(doi):
         if not ids:
             return ""
 
-        pmid = ids[0]
-
         fetch_url = (
             "https://eutils.ncbi.nlm.nih.gov/"
             "entrez/eutils/efetch.fcgi"
             "?db=pubmed"
-            f"&id={pmid}"
+            f"&id={ids[0]}"
             "&retmode=xml"
         )
 
@@ -1005,25 +687,8 @@ def pubmed_abstract_by_doi(doi):
                 )
             )
 
-            label = (
-                element.attrib.get(
-                    "Label",
-                    "",
-                )
-                .strip()
-            )
-
-            if label and text:
-
-                parts.append(
-                    f"{label}: {text}"
-                )
-
-            elif text:
-
-                parts.append(
-                    text
-                )
+            if text:
+                parts.append(text)
 
         return clean(
             " ".join(parts)
@@ -1035,49 +700,31 @@ def pubmed_abstract_by_doi(doi):
 
 
 # ============================================================
-# CROSSREF FALLBACK
+# CROSSREF
 # ============================================================
 
 def crossref_abstract_by_doi(doi):
 
     if not doi:
+        return ""
 
-        return (
-            "",
-            "NO_DOI",
-        )
-
-    encoded_doi = urllib.parse.quote(
+    encoded = urllib.parse.quote(
         doi,
         safe="",
     )
 
     url = (
-        "https://api.crossref.org/works/"
-        + encoded_doi
-    )
-
-    request = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": UA,
-            "Accept": "application/json",
-        },
+        "https://api.crossref.org/"
+        "works/"
+        + encoded
     )
 
     try:
 
-        context = (
-            ssl.create_default_context()
+        raw, _, _ = request_bytes(
+            url,
+            accept="application/json",
         )
-
-        with urllib.request.urlopen(
-            request,
-            timeout=TIMEOUT,
-            context=context,
-        ) as response:
-
-            raw = response.read()
 
         data = json.loads(
             raw.decode(
@@ -1086,102 +733,84 @@ def crossref_abstract_by_doi(doi):
             )
         )
 
-        message = data.get(
-            "message",
-            {},
-        )
-
-        abstract = message.get(
-            "abstract",
-            "",
-        )
-
-        if not abstract:
-
-            return (
-                "",
-                "NO_ABSTRACT",
+        abstract = (
+            data.get(
+                "message",
+                {},
             )
+            .get(
+                "abstract",
+                "",
+            )
+        )
 
-        abstract = clean(
+        return clean(
             abstract
         )
 
-        if len(abstract) < 100:
+    except Exception:
 
-            return (
-                abstract,
-                "TOO_SHORT",
-            )
-
-        return (
-            abstract,
-            "OK",
-        )
-
-    except Exception as exc:
-
-        return (
-            "",
-            (
-                "FAILED:"
-                + type(exc).__name__
-            ),
-        )
+        return ""
 
 
 # ============================================================
-# ARTICLE TYPE FILTERS
+# TYPE FILTERING
 # ============================================================
 
-def nature_is_article(paper):
+def normalized_types(paper):
 
-    """
-    s41586 is only a candidate restriction.
+    return [
+        clean(value).lower()
+        for value
+        in paper["feed_types"]
+    ]
 
-    Final Nature type decision:
-    official page
-    citation_article_type == Article
-    """
 
-    doi = paper["doi"].lower()
+def science_is_article(paper):
 
-    if not doi.startswith(
-        "10.1038/s41586-"
+    return (
+        "research article"
+        in normalized_types(
+            paper
+        )
+    )
+
+
+def cell_is_article(paper):
+
+    return (
+        "article"
+        in normalized_types(
+            paper
+        )
+    )
+
+
+def nature_article(
+    paper
+):
+
+    if not (
+        paper["doi"]
+        .lower()
+        .startswith(
+            "10.1038/s41586-"
+        )
     ):
 
-        return (
-            False,
-            "",
-            None,
-        )
-
-    if not paper["url"]:
-
-        return (
-            False,
-            "NO_URL",
-            None,
-        )
+        return None
 
     try:
 
-        page, _, final_url = (
+        page, _, _ = (
             request_text(
                 paper["url"]
             )
         )
 
-    except Exception as exc:
+    except Exception:
 
-        return (
-            False,
-            (
-                "PAGE_FAILED:"
-                + type(exc).__name__
-            ),
-            None,
-        )
+        return None
 
     article_type = (
         extract_meta_tag(
@@ -1190,537 +819,254 @@ def nature_is_article(paper):
         )
     )
 
-    keep = (
-        article_type.strip().lower()
-        == "article"
+    if (
+        article_type
+        .strip()
+        .lower()
+        != "article"
+    ):
+
+        return None
+
+    text, source = (
+        official_abstract(
+            page
+        )
     )
 
-    return (
-        keep,
-        (
-            article_type
-            or "Unavailable"
-        ),
+    if not text:
+        return None
+
+    result = dict(
+        paper
+    )
+
+    result.update(
         {
-            "page": page,
-            "final_url": final_url,
-        },
+            "article_type": (
+                "Article"
+            ),
+            "scientific_text": text,
+            "source": source,
+            "quality": "HIGH",
+        }
     )
 
-
-def science_is_article(paper):
-
-    normalized_types = [
-        clean(value).lower()
-        for value
-        in paper["feed_types"]
-    ]
-
-    return (
-        "research article"
-        in normalized_types
-    )
-
-
-def cell_is_article(paper):
-
-    normalized_types = [
-        clean(value).lower()
-        for value
-        in paper["feed_types"]
-    ]
-
-    return (
-        "article"
-        in normalized_types
-    )
+    return result
 
 
 # ============================================================
-# SCIENTIFIC TEXT RETRIEVAL
+# SCIENCE / CELL SCIENTIFIC TEXT
 # ============================================================
 
-def get_scientific_text(
+def enrich_non_nature(
     paper,
-    cached_page=None,
+    article_type,
 ):
 
-    """
-    Retrieval priority:
+    # ------------------------------------
+    # Official page
+    # ------------------------------------
 
-    1. Official publisher page
-    2. PubMed
-    3. Crossref
-    4. RSS description
+    try:
 
-    Returns:
-        text
-        source
-        evidence_quality
-        diagnostics
-    """
-
-    diagnostics = []
-
-    # ========================================================
-    # 1. OFFICIAL PUBLISHER PAGE
-    # ========================================================
-
-    if cached_page:
-
-        page = cached_page["page"]
-
-        abstract, source = (
-            abstract_from_meta(
-                page
-            )
-        )
-
-        if abstract:
-
-            return (
-                abstract,
-                (
-                    "OFFICIAL_PAGE/"
-                    + source
-                ),
-                "HIGH",
-                diagnostics,
-            )
-
-        abstract = (
-            abstract_from_jsonld(
-                page
-            )
-        )
-
-        if abstract:
-
-            return (
-                abstract,
-                (
-                    "OFFICIAL_PAGE/"
-                    "JSON_LD"
-                ),
-                "HIGH",
-                diagnostics,
-            )
-
-        abstract = (
-            abstract_from_html_patterns(
-                page
-            )
-        )
-
-        if abstract:
-
-            return (
-                abstract,
-                (
-                    "OFFICIAL_PAGE/"
-                    "HTML_ABSTRACT_BLOCK"
-                ),
-                "HIGH",
-                diagnostics,
-            )
-
-        diagnostics.append(
-            "Official page: no abstract"
-        )
-
-    else:
-
-        result = (
-            retrieve_page_abstract(
+        page, _, _ = (
+            request_text(
                 paper["url"]
             )
         )
 
-        if result["abstract"]:
-
-            return (
-                result["abstract"],
-                (
-                    "OFFICIAL_PAGE/"
-                    + result["source"]
-                ),
-                "HIGH",
-                diagnostics,
-            )
-
-        diagnostics.append(
-            (
-                "Official page: "
-                + result["status"]
+        text, source = (
+            official_abstract(
+                page
             )
         )
 
-    # ========================================================
-    # 2. PUBMED
-    # ========================================================
+        if text:
 
-    pubmed_abstract = (
-        pubmed_abstract_by_doi(
-            paper["doi"]
-        )
-    )
+            result = dict(
+                paper
+            )
 
-    if len(
-        pubmed_abstract
-    ) >= 100:
+            result.update(
+                {
+                    "article_type": (
+                        article_type
+                    ),
+                    "scientific_text": (
+                        text
+                    ),
+                    "source": source,
+                    "quality": "HIGH",
+                }
+            )
 
-        return (
-            pubmed_abstract,
-            "PUBMED",
-            "HIGH",
-            diagnostics,
-        )
+            return result
 
-    diagnostics.append(
-        "PubMed: unavailable"
-    )
+    except Exception:
+        pass
 
-    # ========================================================
-    # 3. CROSSREF
-    # ========================================================
+    # ------------------------------------
+    # PubMed
+    # ------------------------------------
 
-    (
-        crossref_abstract,
-        crossref_status,
-    ) = crossref_abstract_by_doi(
+    text = pubmed_abstract_by_doi(
         paper["doi"]
     )
 
-    if len(
-        crossref_abstract
-    ) >= 100:
+    if len(text) >= 100:
 
-        return (
-            crossref_abstract,
-            "CROSSREF",
-            "HIGH",
-            diagnostics,
-        )
-
-    diagnostics.append(
-        (
-            "Crossref: "
-            + crossref_status
-        )
-    )
-
-    # ========================================================
-    # 4. RSS DESCRIPTION
-    # ========================================================
-
-    rss_text = clean(
-        paper["feed_description"]
-    )
-
-    if len(rss_text) >= 500:
-
-        return (
-            rss_text,
-            "RSS_DESCRIPTION",
-            "MEDIUM",
-            diagnostics,
-        )
-
-    if len(rss_text) >= 150:
-
-        return (
-            rss_text,
-            "RSS_DESCRIPTION",
-            "LOW",
-            diagnostics,
-        )
-
-    diagnostics.append(
-        "RSS: insufficient"
-    )
-
-    return (
-        "",
-        "UNAVAILABLE",
-        "NONE",
-        diagnostics,
-    )
-
-
-# ============================================================
-# OUTPUT
-# ============================================================
-
-def print_paper(
-    number,
-    paper,
-    article_type,
-    scientific_text,
-    source,
-    quality,
-    diagnostics,
-):
-
-    print()
-    print("-" * 78)
-
-    print(
-        f"[{paper['journal']} {number}]"
-    )
-
-    print("-" * 78)
-
-    print(
-        "Title            :",
-        paper["title"],
-    )
-
-    print(
-        "Date             :",
-        paper["date"],
-    )
-
-    print(
-        "DOI              :",
-        (
-            paper["doi"]
-            or "Unavailable"
-        ),
-    )
-
-    print(
-        "Article type     :",
-        article_type,
-    )
-
-    print(
-        "URL              :",
-        (
-            paper["url"]
-            or "Unavailable"
-        ),
-    )
-
-    print(
-        "Scientific source:",
-        source,
-    )
-
-    print(
-        "Evidence quality :",
-        quality,
-    )
-
-    print(
-        "Text chars       :",
-        len(scientific_text),
-    )
-
-    if diagnostics:
-
-        print(
-            "Fallback path    :",
-            " -> ".join(
-                diagnostics
-            ),
-        )
-
-    else:
-
-        print(
-            "Fallback path    :",
-            "Direct success",
-        )
-
-    print()
-    print("SCIENTIFIC TEXT")
-    print()
-
-    if scientific_text:
-
-        print(
-            scientific_text
-        )
-
-    else:
-
-        print(
-            "[NO SUBSTANTIVE "
-            "SCIENTIFIC TEXT FOUND]"
-        )
-
-
-# ============================================================
-# NATURE
-# ============================================================
-
-def process_nature(journal):
-
-    print()
-    print("=" * 78)
-    print(
-        "NATURE — ARTICLE + SCIENTIFIC TEXT"
-    )
-    print("=" * 78)
-
-    papers = fetch_feed(
-        journal
-    )
-
-    targets = []
-
-    for paper in papers:
-
-        if (
-            len(targets)
-            >= MAX_TARGETS_PER_JOURNAL
-        ):
-            break
-
-        (
-            keep,
-            article_type,
-            cached_page,
-        ) = nature_is_article(
+        result = dict(
             paper
         )
 
-        if not keep:
-            continue
-
-        (
-            scientific_text,
-            source,
-            quality,
-            diagnostics,
-        ) = get_scientific_text(
-            paper,
-            cached_page=cached_page,
-        )
-
-        targets.append(
+        result.update(
             {
-                "paper": paper,
                 "article_type": (
                     article_type
                 ),
-                "scientific_text": (
-                    scientific_text
-                ),
-                "source": source,
-                "quality": quality,
-                "diagnostics": (
-                    diagnostics
-                ),
+                "scientific_text": text,
+                "source": "PUBMED",
+                "quality": "HIGH",
             }
         )
 
-    for number, item in enumerate(
-        targets,
-        start=1,
-    ):
+        return result
 
-        print_paper(
-            number,
-            item["paper"],
-            item["article_type"],
-            item["scientific_text"],
-            item["source"],
-            item["quality"],
-            item["diagnostics"],
+    # ------------------------------------
+    # Crossref
+    # ------------------------------------
+
+    text = crossref_abstract_by_doi(
+        paper["doi"]
+    )
+
+    if len(text) >= 100:
+
+        result = dict(
+            paper
         )
 
-    return targets
+        result.update(
+            {
+                "article_type": (
+                    article_type
+                ),
+                "scientific_text": text,
+                "source": "CROSSREF",
+                "quality": "HIGH",
+            }
+        )
 
+        return result
 
-# ============================================================
-# SCIENCE
-# ============================================================
+    # ------------------------------------
+    # RSS
+    # ------------------------------------
 
-def process_science(journal):
-
-    print()
-    print("=" * 78)
-    print(
-        "SCIENCE — RESEARCH ARTICLE + SCIENTIFIC TEXT"
+    text = clean(
+        paper[
+            "feed_description"
+        ]
     )
-    print("=" * 78)
+
+    if len(text) >= 500:
+        quality = "MEDIUM"
+
+    elif len(text) >= 150:
+        quality = "LOW"
+
+    else:
+        quality = "NONE"
+
+    result = dict(
+        paper
+    )
+
+    result.update(
+        {
+            "article_type": (
+                article_type
+            ),
+            "scientific_text": text,
+            "source": (
+                "RSS_DESCRIPTION"
+                if text
+                else "UNAVAILABLE"
+            ),
+            "quality": quality,
+        }
+    )
+
+    return result
+
+
+# ============================================================
+# BUILD ARTICLE POOLS
+# ============================================================
+
+def get_nature_articles():
+
+    journal = JOURNALS[0]
 
     papers = fetch_feed(
         journal
     )
 
-    targets = []
+    results = []
 
     for paper in papers:
 
-        if (
-            len(targets)
-            >= MAX_TARGETS_PER_JOURNAL
-        ):
+        result = nature_article(
+            paper
+        )
+
+        if result:
+            results.append(
+                result
+            )
+
+        if len(results) >= 5:
             break
+
+    return results
+
+
+def get_science_articles():
+
+    journal = JOURNALS[1]
+
+    papers = fetch_feed(
+        journal
+    )
+
+    results = []
+
+    for paper in papers:
 
         if not science_is_article(
             paper
         ):
             continue
 
-        (
-            scientific_text,
-            source,
-            quality,
-            diagnostics,
-        ) = get_scientific_text(
-            paper
+        result = enrich_non_nature(
+            paper,
+            "Research Article",
         )
 
-        targets.append(
-            {
-                "paper": paper,
-                "article_type": (
-                    "Research Article"
-                ),
-                "scientific_text": (
-                    scientific_text
-                ),
-                "source": source,
-                "quality": quality,
-                "diagnostics": (
-                    diagnostics
-                ),
-            }
+        results.append(
+            result
         )
 
-    for number, item in enumerate(
-        targets,
-        start=1,
-    ):
+        if len(results) >= 5:
+            break
 
-        print_paper(
-            number,
-            item["paper"],
-            item["article_type"],
-            item["scientific_text"],
-            item["source"],
-            item["quality"],
-            item["diagnostics"],
-        )
-
-    return targets
+    return results
 
 
-# ============================================================
-# CELL
-# ============================================================
+def get_cell_articles():
 
-def process_cell(journal):
-
-    print()
-    print("=" * 78)
-    print(
-        "CELL — ARTICLE + SCIENTIFIC TEXT"
-    )
-    print("=" * 78)
+    journal = JOURNALS[2]
 
     papers = fetch_feed(
         journal
@@ -1734,9 +1080,6 @@ def process_cell(journal):
         )
     ]
 
-    # Cell RSS is not necessarily ordered by
-    # publication date, so sort explicitly.
-
     article_papers.sort(
         key=lambda paper: (
             parse_date(
@@ -1749,158 +1092,547 @@ def process_cell(journal):
         reverse=True,
     )
 
-    targets = []
-
-    for paper in article_papers[
-        :MAX_TARGETS_PER_JOURNAL
-    ]:
-
-        (
-            scientific_text,
-            source,
-            quality,
-            diagnostics,
-        ) = get_scientific_text(
-            paper
+    return [
+        enrich_non_nature(
+            paper,
+            "Article",
         )
-
-        targets.append(
-            {
-                "paper": paper,
-                "article_type": (
-                    "Article"
-                ),
-                "scientific_text": (
-                    scientific_text
-                ),
-                "source": source,
-                "quality": quality,
-                "diagnostics": (
-                    diagnostics
-                ),
-            }
-        )
-
-    for number, item in enumerate(
-        targets,
-        start=1,
-    ):
-
-        print_paper(
-            number,
-            item["paper"],
-            item["article_type"],
-            item["scientific_text"],
-            item["source"],
-            item["quality"],
-            item["diagnostics"],
-        )
-
-    return targets
+        for paper
+        in article_papers[:10]
+    ]
 
 
 # ============================================================
-# SUMMARY
+# SELECT SIX TEST PAPERS
 # ============================================================
 
-def summarize(
-    journal_name,
-    targets,
+def select_test_articles(
+    nature,
+    science,
+    cell,
 ):
 
-    total = len(targets)
+    selected = []
 
-    high = sum(
-        1
-        for item in targets
-        if item["quality"] == "HIGH"
+    # Nature: first 2 HIGH
+    nature_high = [
+        paper
+        for paper in nature
+        if paper["quality"] == "HIGH"
+    ]
+
+    selected.extend(
+        nature_high[:2]
     )
 
-    medium = sum(
-        1
-        for item in targets
-        if item["quality"] == "MEDIUM"
+    # Science: first 2 HIGH
+    science_high = [
+        paper
+        for paper in science
+        if paper["quality"] == "HIGH"
+    ]
+
+    selected.extend(
+        science_high[:2]
     )
 
-    low = sum(
-        1
-        for item in targets
-        if item["quality"] == "LOW"
-    )
+    # Cell: one HIGH
+    cell_high = [
+        paper
+        for paper in cell
+        if paper["quality"] == "HIGH"
+    ]
 
-    none = sum(
-        1
-        for item in targets
-        if item["quality"] == "NONE"
-    )
-
-    sources = {}
-
-    lengths = []
-
-    for item in targets:
-
-        source = item["source"]
-
-        sources[source] = (
-            sources.get(
-                source,
-                0,
-            )
-            + 1
+    if cell_high:
+        selected.append(
+            cell_high[0]
         )
 
-        lengths.append(
-            len(
-                item["scientific_text"]
-            )
+    # Cell: one LOW
+    cell_low = [
+        paper
+        for paper in cell
+        if paper["quality"] == "LOW"
+    ]
+
+    if cell_low:
+        selected.append(
+            cell_low[0]
         )
 
-    average_length = (
-        round(
-            sum(lengths)
-            / len(lengths)
+    return selected
+
+
+# ============================================================
+# OPENAI
+# ============================================================
+
+def build_analysis_prompt(
+    paper
+):
+
+    evidence_warning = ""
+
+    if paper["quality"] == "LOW":
+
+        evidence_warning = """
+IMPORTANT:
+The supplied source is LOW-EVIDENCE scientific text.
+It may be only a short publisher summary.
+
+You MUST be especially conservative.
+Do not reconstruct experimental procedures.
+Do not infer likely methods from the topic.
+If methods are not explicitly stated, report:
+"Not stated in available source."
+"""
+
+    return f"""
+You are analyzing a scientific research paper.
+
+Your job is to extract and interpret ONLY what is supported
+by the supplied scientific text.
+
+============================================================
+STRICT EVIDENCE RULES
+============================================================
+
+1. Never invent information.
+
+2. Never infer a method merely because it would normally
+   be used in this research field.
+
+3. Never infer methods from the paper title.
+
+4. Never infer experimental design from general scientific
+   knowledge.
+
+5. A method may be reported ONLY when it is explicitly
+   stated or directly described in the supplied scientific
+   text.
+
+6. If the available source does not state a method, write:
+
+   "Not stated in available source."
+
+7. Distinguish clearly between:
+   - what the authors did,
+   - what they found,
+   - what you interpret as the conceptual significance.
+
+8. Do not claim methodological innovation unless the supplied
+   source explicitly supports that interpretation.
+
+9. Do not exaggerate novelty.
+
+10. Evidence limitations are mandatory.
+
+{evidence_warning}
+
+============================================================
+PAPER METADATA
+============================================================
+
+Journal:
+{paper["journal"]}
+
+Title:
+{paper["title"]}
+
+DOI:
+{paper["doi"]}
+
+Publication date:
+{paper["date"]}
+
+Article type:
+{paper["article_type"]}
+
+Scientific-text source:
+{paper["source"]}
+
+Evidence quality:
+{paper["quality"]}
+
+============================================================
+SCIENTIFIC TEXT
+============================================================
+
+{paper["scientific_text"]}
+
+============================================================
+OUTPUT
+============================================================
+
+Return ONLY valid JSON.
+
+Use exactly this structure:
+
+{{
+  "research_question": "",
+  "study_system": "",
+  "methods": [
+    {{
+      "method": "",
+      "purpose": ""
+    }}
+  ],
+  "key_findings": [
+    ""
+  ],
+  "conceptual_innovation": "",
+  "methodological_innovation": "",
+  "why_it_matters": "",
+  "evidence_limitations": ""
+}}
+
+Write the scientific analysis in Chinese.
+
+Keep technical method names, gene names, proteins,
+algorithms, instruments, datasets and specialist terminology
+in their standard English form where appropriate.
+
+For "methods":
+- include only explicitly supported methods;
+- give the purpose of each method;
+- if no method is explicitly supported, return:
+
+[
+  {{
+    "method": "Not stated in available source.",
+    "purpose": "Not stated in available source."
+  }}
+]
+
+For methodological_innovation:
+if not explicitly supported, write:
+"Not stated in available source."
+
+Return JSON only.
+""".strip()
+
+
+def call_openai(
+    paper
+):
+
+    api_key = os.environ.get(
+        "OPENAI_API_KEY",
+        "",
+    ).strip()
+
+    if not api_key:
+
+        raise RuntimeError(
+            "OPENAI_API_KEY is missing."
         )
-        if lengths
-        else 0
+
+    prompt = build_analysis_prompt(
+        paper
+    )
+
+    payload = {
+        "model": OPENAI_MODEL,
+        "input": prompt,
+        "reasoning": {
+            "effort": "low"
+        },
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": (
+                    "scientific_analysis"
+                ),
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "research_question": {
+                            "type": "string"
+                        },
+                        "study_system": {
+                            "type": "string"
+                        },
+                        "methods": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "method": {
+                                        "type": "string"
+                                    },
+                                    "purpose": {
+                                        "type": "string"
+                                    },
+                                },
+                                "required": [
+                                    "method",
+                                    "purpose",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        },
+                        "key_findings": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                        },
+                        "conceptual_innovation": {
+                            "type": "string"
+                        },
+                        "methodological_innovation": {
+                            "type": "string"
+                        },
+                        "why_it_matters": {
+                            "type": "string"
+                        },
+                        "evidence_limitations": {
+                            "type": "string"
+                        },
+                    },
+                    "required": [
+                        "research_question",
+                        "study_system",
+                        "methods",
+                        "key_findings",
+                        "conceptual_innovation",
+                        "methodological_innovation",
+                        "why_it_matters",
+                        "evidence_limitations",
+                    ],
+                    "additionalProperties": False,
+                },
+            }
+        },
+    }
+
+    request = urllib.request.Request(
+        "https://api.openai.com/v1/responses",
+        data=json.dumps(
+            payload
+        ).encode(
+            "utf-8"
+        ),
+        headers={
+            "Authorization": (
+                "Bearer "
+                + api_key
+            ),
+            "Content-Type": (
+                "application/json"
+            ),
+        },
+        method="POST",
+    )
+
+    context = ssl.create_default_context()
+
+    with urllib.request.urlopen(
+        request,
+        timeout=120,
+        context=context,
+    ) as response:
+
+        raw = response.read()
+
+    data = json.loads(
+        raw.decode(
+            "utf-8"
+        )
+    )
+
+    # Responses API output parsing
+    output_text = ""
+
+    for item in data.get(
+        "output",
+        [],
+    ):
+
+        if item.get(
+            "type"
+        ) != "message":
+            continue
+
+        for content in item.get(
+            "content",
+            [],
+        ):
+
+            if content.get(
+                "type"
+            ) == "output_text":
+
+                output_text += (
+                    content.get(
+                        "text",
+                        "",
+                    )
+                )
+
+    if not output_text:
+
+        raise RuntimeError(
+            "OpenAI returned no output_text."
+        )
+
+    return json.loads(
+        output_text
+    )
+
+
+# ============================================================
+# PRINT AI RESULT
+# ============================================================
+
+def print_analysis(
+    number,
+    paper,
+    analysis,
+):
+
+    print()
+    print("=" * 78)
+
+    print(
+        f"AI ANALYSIS {number}/6"
+    )
+
+    print("=" * 78)
+
+    print(
+        "Journal :",
+        paper["journal"],
+    )
+
+    print(
+        "Title   :",
+        paper["title"],
+    )
+
+    print(
+        "DOI     :",
+        paper["doi"],
+    )
+
+    print(
+        "Source  :",
+        paper["source"],
+    )
+
+    print(
+        "Quality :",
+        paper["quality"],
+    )
+
+    print(
+        "Chars   :",
+        len(
+            paper[
+                "scientific_text"
+            ]
+        ),
     )
 
     print()
-    print(journal_name)
-
     print(
-        "  Target papers     :",
-        total,
+        "RESEARCH QUESTION"
     )
 
     print(
-        "  HIGH evidence     :",
-        high,
+        analysis[
+            "research_question"
+        ]
+    )
+
+    print()
+    print(
+        "STUDY SYSTEM"
     )
 
     print(
-        "  MEDIUM evidence   :",
-        medium,
+        analysis[
+            "study_system"
+        ]
+    )
+
+    print()
+    print(
+        "METHODS"
+    )
+
+    for index, method in enumerate(
+        analysis["methods"],
+        start=1,
+    ):
+
+        print(
+            f"{index}.",
+            method["method"],
+        )
+
+        print(
+            "   Purpose:",
+            method["purpose"],
+        )
+
+    print()
+    print(
+        "KEY FINDINGS"
+    )
+
+    for finding in analysis[
+        "key_findings"
+    ]:
+
+        print(
+            "-",
+            finding,
+        )
+
+    print()
+    print(
+        "CONCEPTUAL INNOVATION"
     )
 
     print(
-        "  LOW evidence      :",
-        low,
+        analysis[
+            "conceptual_innovation"
+        ]
+    )
+
+    print()
+    print(
+        "METHODOLOGICAL INNOVATION"
     )
 
     print(
-        "  NONE              :",
-        none,
+        analysis[
+            "methodological_innovation"
+        ]
+    )
+
+    print()
+    print(
+        "WHY IT MATTERS"
     )
 
     print(
-        "  Average text chars:",
-        average_length,
+        analysis[
+            "why_it_matters"
+        ]
+    )
+
+    print()
+    print(
+        "EVIDENCE LIMITATIONS"
     )
 
     print(
-        "  Sources           :",
-        sources,
+        analysis[
+            "evidence_limitations"
+        ]
     )
 
 
@@ -1913,187 +1645,198 @@ def main():
     print("=" * 78)
 
     print(
-        "CNS ARTICLE AGENT V3.5 — "
-        "SCIENTIFIC TEXT RETRIEVAL"
+        "CNS ARTICLE AGENT V4 "
+        "— OPENAI ANALYSIS TEST"
     )
 
     print("=" * 78)
 
     print()
-    print("OpenAI API : OFF")
-    print("Email      : OFF")
-    print("Dedup      : OFF")
-
-    print()
     print(
-        "Maximum target papers per journal:",
-        MAX_TARGETS_PER_JOURNAL,
-    )
-
-    print()
-    print("Article filtering rules:")
-
-    print(
-        "  Nature  -> official page "
-        "citation_article_type == Article"
+        "Model :",
+        OPENAI_MODEL,
     )
 
     print(
-        "  Science -> RSS type == Research Article"
+        "Email : OFF"
     )
 
     print(
-        "  Cell    -> RSS type == Article"
+        "Dedup : OFF"
+    )
+
+    print(
+        "Test  : 6 papers"
     )
 
     print()
     print(
-        "Scientific-text retrieval:"
+        "Retrieving article pools..."
     )
 
-    print(
-        "  Official publisher page"
+    nature = (
+        get_nature_articles()
     )
 
-    print(
-        "      -> PubMed"
+    science = (
+        get_science_articles()
     )
 
-    print(
-        "      -> Crossref"
-    )
-
-    print(
-        "      -> RSS description"
+    cell = (
+        get_cell_articles()
     )
 
     print()
     print(
-        "Evidence quality:"
+        "Nature pool:",
+        len(nature),
     )
 
     print(
-        "  HIGH   = official abstract / "
-        "PubMed / Crossref"
+        "Science pool:",
+        len(science),
     )
 
     print(
-        "  MEDIUM = RSS >= 500 chars"
+        "Cell pool:",
+        len(cell),
     )
 
-    print(
-        "  LOW    = RSS 150-499 chars"
-    )
-
-    print(
-        "  NONE   = insufficient text"
-    )
-
-    print()
-    print(
-        "Current UTC:",
-        datetime.now(
-            timezone.utc
-        ).isoformat(),
-    )
-
-    nature = next(
-        journal
-        for journal in JOURNALS
-        if journal["name"] == "Nature"
-    )
-
-    science = next(
-        journal
-        for journal in JOURNALS
-        if journal["name"] == "Science"
-    )
-
-    cell = next(
-        journal
-        for journal in JOURNALS
-        if journal["name"] == "Cell"
-    )
-
-    # --------------------------------------------------------
-    # RUN
-    # --------------------------------------------------------
-
-    nature_targets = (
-        process_nature(
-            nature
+    selected = (
+        select_test_articles(
+            nature,
+            science,
+            cell,
         )
     )
 
-    science_targets = (
-        process_science(
-            science
+    print()
+    print("=" * 78)
+    print(
+        "SELECTED TEST PAPERS"
+    )
+    print("=" * 78)
+
+    for index, paper in enumerate(
+        selected,
+        start=1,
+    ):
+
+        print()
+
+        print(
+            index,
+            paper["journal"],
+            "|",
+            paper["quality"],
+            "|",
+            paper["title"],
         )
-    )
 
-    cell_targets = (
-        process_cell(
-            cell
+    if len(selected) != 6:
+
+        raise RuntimeError(
+            "Expected exactly 6 test papers, "
+            f"but selected {len(selected)}."
         )
-    )
-
-    # --------------------------------------------------------
-    # SUMMARY
-    # --------------------------------------------------------
 
     print()
     print("=" * 78)
     print(
-        "V3.5 SUMMARY"
+        "STARTING OPENAI ANALYSIS"
     )
     print("=" * 78)
 
-    summarize(
-        "Nature",
-        nature_targets,
+    successes = 0
+    failures = 0
+
+    for index, paper in enumerate(
+        selected,
+        start=1,
+    ):
+
+        try:
+
+            analysis = call_openai(
+                paper
+            )
+
+            print_analysis(
+                index,
+                paper,
+                analysis,
+            )
+
+            successes += 1
+
+        except Exception as exc:
+
+            failures += 1
+
+            print()
+            print("=" * 78)
+
+            print(
+                f"AI ANALYSIS {index}/6 FAILED"
+            )
+
+            print("=" * 78)
+
+            print(
+                paper["journal"],
+                "|",
+                paper["title"],
+            )
+
+            print(
+                type(exc).__name__,
+                ":",
+                exc,
+            )
+
+    print()
+    print("=" * 78)
+    print(
+        "V4 SUMMARY"
+    )
+    print("=" * 78)
+
+    print(
+        "Selected papers :",
+        len(selected),
     )
 
-    summarize(
-        "Science",
-        science_targets,
+    print(
+        "AI successes    :",
+        successes,
     )
 
-    summarize(
-        "Cell",
-        cell_targets,
+    print(
+        "AI failures     :",
+        failures,
+    )
+
+    print()
+    print(
+        "Expected diagnostic:"
+    )
+
+    print(
+        "- HIGH evidence should produce "
+        "specific supported methods."
+    )
+
+    print(
+        "- LOW evidence should NOT cause "
+        "the model to invent methods."
     )
 
     print()
     print("=" * 78)
     print(
-        "V3.5 FINISHED"
+        "V4 FINISHED"
     )
     print("=" * 78)
-
-    print()
-    print(
-        "Interpretation:"
-    )
-
-    print(
-        "HIGH evidence is suitable for "
-        "method-focused AI analysis."
-    )
-
-    print(
-        "MEDIUM evidence may be usable "
-        "with conservative AI instructions."
-    )
-
-    print(
-        "LOW evidence should not be used "
-        "to infer detailed methods."
-    )
-
-    print(
-        "NONE means the paper needs "
-        "another scientific-text source."
-    )
 
 
 if __name__ == "__main__":
