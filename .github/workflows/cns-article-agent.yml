@@ -1,13 +1,13 @@
-name: CNS Article Agent V6 Production
+name: CNS Article Agent V6.1 Production
 
 on:
   workflow_dispatch:
 
   schedule:
-    # Europe/Paris 10:30
-    # Summer (CEST): 08:30 UTC
-    # Winter (CET): 09:30 UTC
+    # Paris 10:30 during daylight-saving time (CEST, UTC+2)
     - cron: "30 8 * * *"
+
+    # Paris 10:30 during standard time (CET, UTC+1)
     - cron: "30 9 * * *"
 
 permissions:
@@ -34,27 +34,47 @@ jobs:
         id: paris_gate
         shell: bash
         run: |
+          # Manual runs are always allowed.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "Manual run: allowed."
             echo "run_agent=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          PARIS_TIME="$(TZ=Europe/Paris date '+%H:%M')"
           PARIS_DATE="$(TZ=Europe/Paris date '+%Y-%m-%d')"
+          PARIS_TIME="$(TZ=Europe/Paris date '+%H:%M:%S')"
+          PARIS_OFFSET="$(TZ=Europe/Paris date '+%z')"
+          TRIGGERED_SCHEDULE="${{ github.event.schedule }}"
 
           echo "Paris date: $PARIS_DATE"
-          echo "Paris time: $PARIS_TIME"
+          echo "Paris time at actual start: $PARIS_TIME"
+          echo "Paris UTC offset: $PARIS_OFFSET"
+          echo "Triggered cron: $TRIGGERED_SCHEDULE"
 
-          if [ "$PARIS_TIME" = "10:30" ]; then
-            echo "Correct Paris execution time."
+          # Summer time:
+          # 08:30 UTC = 10:30 Paris when offset is +0200.
+          if [ "$TRIGGERED_SCHEDULE" = "30 8 * * *" ] && \
+             [ "$PARIS_OFFSET" = "+0200" ]; then
+
+            echo "Correct Paris summer-time schedule."
             echo "run_agent=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "DST duplicate cron run. Skipping."
-            echo "run_agent=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
 
-      - name: Run CNS Article Agent V6
+          # Winter time:
+          # 09:30 UTC = 10:30 Paris when offset is +0100.
+          if [ "$TRIGGERED_SCHEDULE" = "30 9 * * *" ] && \
+             [ "$PARIS_OFFSET" = "+0100" ]; then
+
+            echo "Correct Paris winter-time schedule."
+            echo "run_agent=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "DST duplicate cron run. Skipping."
+          echo "run_agent=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run CNS Article Agent V6.1
         if: steps.paris_gate.outputs.run_agent == 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
