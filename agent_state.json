@@ -1,6 +1,430 @@
 {
-  "version": 1,
-  "initialized": false,
-  "last_successful_run": null,
-  "seen_papers": {}
+  "initialized": true,
+  "last_successful_run": "2026-09-01T14:03:40+00:00",
+  "seen_papers": {
+    "doi:10.1016/j.cell.2026.05.018": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.018",
+      "journal": "Cell",
+      "publication_date": "2026-06-09",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Prion-based protein self-assembly tunes mutagenesis to enable rapid adaptation",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00577-5?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.026": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.026",
+      "journal": "Cell",
+      "publication_date": "2026-06-15",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "The critical role of the endogenous immune compartment after CAR T cell therapy in recurrent GBM",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00585-4?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.036": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.036",
+      "journal": "Cell",
+      "publication_date": "2026-06-22",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Cuproptosis-immunity crosstalk informs strategy to overcome immunotherapy resistance",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00636-7?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.042": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.042",
+      "journal": "Cell",
+      "publication_date": "2026-06-17",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Chloroplast sunscreening by protein condensates confers high-light tolerance",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00642-2?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.043": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.043",
+      "journal": "Cell",
+      "publication_date": "2026-06-19",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Expansion and CAR engineering of granulocyte-monocyte progenitors for cellular immunotherapy",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00643-4?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.048": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.048",
+      "journal": "Cell",
+      "publication_date": "2026-06-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Geometric constraints on the architecture of mammalian cortical connectomes",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00648-3?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.05.049": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.05.049",
+      "journal": "Cell",
+      "publication_date": "2026-06-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Excessive epithelial mechanosensation drives nociceptive innervation and chronic bladder pain via the PIEZO1-SLC7A11-glutamate axis",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00649-5?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.06.009": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.009",
+      "journal": "Cell",
+      "publication_date": "2026-06-30",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Multiscale integration of tissue and chromatin context converts cell heterogeneity into stable intestinal patterning",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00696-3?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.06.031": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.031",
+      "journal": "Cell",
+      "publication_date": "2026-07-20",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Viral protease-initiated lytic cell death as a universal antiviral mRNA therapy",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00751-8?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.06.038": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.038",
+      "journal": "Cell",
+      "publication_date": "2026-07-21",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "A domestication-selected enhancer coordinates source-sink balance to improve harvest index and yield in maize",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00758-0?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.032": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.032",
+      "journal": "Cell",
+      "publication_date": "2026-08-11",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Hierarchical and context-dependent encoding of actions in human posterior parietal and motor cortex",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00864-0?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.034": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.034",
+      "journal": "Cell",
+      "publication_date": "2026-08-11",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Trans-regulatory gene mapping prioritizes disease drivers in asthma",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00866-4?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.035": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.035",
+      "journal": "Cell",
+      "publication_date": "2026-08-11",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Pangenome-guided breeding restores high-altitude adaptation and improves yield in Tartary buckwheat",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00867-6?rss=yes"
+    },
+    "doi:10.1038/s41586-026-10577-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10577-6",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Cell-type-specific eQTLs underlie the genetic architecture of complex traits",
+      "url": "https://www.nature.com/articles/s41586-026-10577-6"
+    },
+    "doi:10.1038/s41586-026-10893-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10893-x",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Tidal tomography reveals a thermal anomaly beneath Mars’s crustal dichotomy",
+      "url": "https://www.nature.com/articles/s41586-026-10893-x"
+    },
+    "doi:10.1038/s41586-026-10901-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10901-0",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Long-read sequencing reveals pre-meiotic gene conversion in sperm",
+      "url": "https://www.nature.com/articles/s41586-026-10901-0"
+    },
+    "doi:10.1038/s41586-026-10902-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10902-z",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "3D bulk-resolved g -wave altermagnetic order parameter in CrSb",
+      "url": "https://www.nature.com/articles/s41586-026-10902-z"
+    },
+    "doi:10.1038/s41586-026-10915-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10915-8",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Infrared absorption spectroscopy of a single polyatomic molecular ion",
+      "url": "https://www.nature.com/articles/s41586-026-10915-8"
+    },
+    "doi:10.1038/s41586-026-10927-4": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10927-4",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Primate-specific regulation of the human glycosphingolipid gatekeeper UGCG",
+      "url": "https://www.nature.com/articles/s41586-026-10927-4"
+    },
+    "doi:10.1038/s41586-026-10932-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10932-7",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Insights into longevity and virus-driven adaptation from Myotis bat genomes",
+      "url": "https://www.nature.com/articles/s41586-026-10932-7"
+    },
+    "doi:10.1038/s41586-026-10936-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10936-3",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Critical zone processes limit alkalinity export from natural basaltic systems",
+      "url": "https://www.nature.com/articles/s41586-026-10936-3"
+    },
+    "doi:10.1038/s41586-026-10941-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10941-6",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Spontaneously charged water drops induce corrosion",
+      "url": "https://www.nature.com/articles/s41586-026-10941-6"
+    },
+    "doi:10.1038/s41586-026-10946-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10946-1",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Granule cells reorient cortical trajectories to separate contexts",
+      "url": "https://www.nature.com/articles/s41586-026-10946-1"
+    },
+    "doi:10.1038/s41586-026-10949-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10949-y",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Automated prototyping of genetic codes",
+      "url": "https://www.nature.com/articles/s41586-026-10949-y"
+    },
+    "doi:10.1038/s41586-026-10961-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10961-2",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Amphibious stem-insect sheds light on colonization of land",
+      "url": "https://www.nature.com/articles/s41586-026-10961-2"
+    },
+    "doi:10.1038/s41586-026-10964-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10964-z",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Aberrant excitatory neuronal ERBB4 promotes Alzheimer’s disease pathology",
+      "url": "https://www.nature.com/articles/s41586-026-10964-z"
+    },
+    "doi:10.1038/s41586-026-10967-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10967-w",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Endocannabinoids facilitate reward engagement through retrograde gain control",
+      "url": "https://www.nature.com/articles/s41586-026-10967-w"
+    },
+    "doi:10.1038/s41586-026-10971-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10971-0",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "A binding-to-release strategy for targeted anticancer drug delivery",
+      "url": "https://www.nature.com/articles/s41586-026-10971-0"
+    },
+    "doi:10.1038/s41586-026-10975-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10975-w",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Ultrafast and reference-free sequence discovery in single-cell data",
+      "url": "https://www.nature.com/articles/s41586-026-10975-w"
+    },
+    "doi:10.1038/s41586-026-10980-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10980-z",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Synergistic degradation of fucoidans in the ocean",
+      "url": "https://www.nature.com/articles/s41586-026-10980-z"
+    },
+    "doi:10.1038/s41586-026-10988-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10988-5",
+      "journal": "Nature",
+      "publication_date": "2026-08-26",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Video reconstruction of variable VLBI observations with neural fields",
+      "url": "https://www.nature.com/articles/s41586-026-10988-5"
+    },
+    "doi:10.1126/science.adx6059": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adx6059",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Tunnel field-effect transistors exhibiting performance beyond the Boltzmann thermionic limit",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adx6059?af=R"
+    },
+    "doi:10.1126/science.ady4523": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.ady4523",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Autism mutations rewire protein interaction networks to drive neurodevelopmental pathology",
+      "url": "https://www.science.org/doi/abs/10.1126/science.ady4523?af=R"
+    },
+    "doi:10.1126/science.aeb0054": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeb0054",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Nonviral delivery of chemically modified tRNA rescues nonsense mutations in cystic fibrosis",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeb0054?af=R"
+    },
+    "doi:10.1126/science.aeb5274": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeb5274",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Thermal cycling–induced nitriding increases energy-storage density in titanate ferroelectric films",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeb5274?af=R"
+    },
+    "doi:10.1126/science.aec2171": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec2171",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Hierarchical sensory processing in zebrafish thalamocortical-like circuits",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec2171?af=R"
+    },
+    "doi:10.1126/science.aec3449": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec3449",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Genomic predisposition is associated with the direction of sex chromosome evolution",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec3449?af=R"
+    },
+    "doi:10.1126/science.aec5252": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec5252",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "A tripartite genetic conflict system controls hybrid sterility in rice",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec5252?af=R"
+    },
+    "doi:10.1126/science.aed9893": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aed9893",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Foreshock productivity and rupture nucleation in injection-induced earthquakes in western Canada",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aed9893?af=R"
+    },
+    "doi:10.1126/science.aee3132": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aee3132",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Direct evaporation of single-crystal metal contacts for 2D semiconductors",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aee3132?af=R"
+    },
+    "doi:10.1126/science.aef8268": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aef8268",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Hypervision: An on-chip hyperspectral microsystem for online video-rate computational imaging",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aef8268?af=R"
+    },
+    "doi:10.1126/science.aef8874": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aef8874",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Recovering signatures of archaic hominin introgression using ancestral recombination graphs",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aef8874?af=R"
+    },
+    "doi:10.1126/science.aeg6829": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeg6829",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "De novo design of RNA pseudoknots with deep learning",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeg6829?af=R"
+    },
+    "doi:10.1126/science.aeg8955": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeg8955",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "High-efficiency, long-lived lead-free perovskite light-emitting diodes",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeg8955?af=R"
+    },
+    "doi:10.1126/science.aeh4856": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh4856",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "SGLT2 inhibitors activate pantothenate kinase in the human heart",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh4856?af=R"
+    },
+    "doi:10.1126/science.aeh7112": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh7112",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "A necroptotic-to-apoptotic signaling axis underlies inflammatory bowel disease",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh7112?af=R"
+    },
+    "doi:10.1126/science.aej0194": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aej0194",
+      "journal": "Science",
+      "publication_date": "2026-08-27",
+      "seen_at": "2026-09-01T14:03:40+00:00",
+      "title": "Iron-catalyzed [1+1+1] cyclopropanation by sequential coupling of an ester to two carbenes",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aej0194?af=R"
+    }
+  },
+  "version": 1
 }
