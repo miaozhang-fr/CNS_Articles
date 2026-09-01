@@ -1,10 +1,27 @@
-name: CNS Article Agent V5 Email Test
+name: CNS Article Agent V6 Production
 
 on:
   workflow_dispatch:
 
+  schedule:
+    # Europe/Paris 10:30
+    #
+    # Summer time (CEST = UTC+2):
+    # 10:30 Paris = 08:30 UTC
+    #
+    # Winter time (CET = UTC+1):
+    # 10:30 Paris = 09:30 UTC
+    #
+    # GitHub cron itself has no reliable Europe/Paris DST timezone,
+    # so both UTC candidates run.
+    # The Paris-time gate below allows only the true 10:30 run.
+
+    - cron: "30 8 * * *"
+    - cron: "30 9 * * *"
+
+
 jobs:
-  email-test:
+  cns-production:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,8 +33,49 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run CNS Article Agent V5
+      - name: Check Paris schedule
+        id: paris_gate
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual run: allowed."
+            echo "run_agent=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PARIS_TIME="$(TZ=Europe/Paris date '+%H:%M')"
+          PARIS_DATE="$(TZ=Europe/Paris date '+%Y-%m-%d')"
+
+          echo "Paris date: $PARIS_DATE"
+          echo "Paris time: $PARIS_TIME"
+
+          if [ "$PARIS_TIME" = "10:30" ]; then
+            echo "Correct Paris execution time."
+            echo "run_agent=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "DST duplicate cron run. Skipping."
+            echo "run_agent=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run CNS Article Agent V6
+        if: steps.paris_gate.outputs.run_agent == 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python cns_article_agent.py
+
+      - name: Commit updated state
+        if: steps.paris_gate.outputs.run_agent == 'true'
+        shell: bash
+        run: |
+          if git diff --quiet -- agent_state.json; then
+            echo "No state changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add agent_state.json
+          git commit -m "Update CNS article state"
+          git push
