@@ -2,25 +2,34 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V5.1 — English Email Test
+CNS Article Agent V6 — Production
 
-Pipeline:
-RSS
- -> exact article-type filtering
- -> scientific-text retrieval
- -> OpenAI analysis in English
- -> HTML email
+Journals:
+- Nature  -> Article
+- Science -> Research Article
+- Cell    -> Article
 
-TEST MODE:
-- Nature:  1 HIGH paper
-- Science: 1 HIGH paper
-- Cell:    1 HIGH paper
+Production pipeline:
+1. Retrieve official RSS feeds
+2. Apply exact publication-type filtering
+3. Normalize DOI / stable paper key
+4. Compare against persistent state
+5. Retrieve scientific text:
+      official publisher
+      -> PubMed
+      -> Crossref
+      -> RSS summary
+6. Analyze new papers with OpenAI
+7. Send English HTML email
+8. ONLY after successful email:
+      update agent_state.json
 
-Email: ON
-OpenAI: ON
-Dedup: OFF
-State: OFF
-Schedule: OFF
+Important:
+- First production run = BASELINE ONLY
+- Baseline run sends NO historical-paper email
+- Subsequent runs process only unseen papers
+- No strict publication-date cutoff
+- Cell discovery does not depend on embedded RSS dates
 """
 
 import os
@@ -29,6 +38,7 @@ import html
 import json
 import ssl
 import smtplib
+import hashlib
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -42,27 +52,28 @@ from email.utils import parsedate_to_datetime
 # SETTINGS
 # ============================================================
 
+VERSION = "6.0"
+
 TIMEOUT = 30
+OPENAI_TIMEOUT = 120
+
 MAX_FEED_ITEMS = 500
+
+STATE_FILE = "agent_state.json"
 
 OPENAI_MODEL = "gpt-5.6-luna"
 
-# ============================================================
-# IMPORTANT — USE YOUR GMAIL ADDRESS
-# ============================================================
-
 EMAIL_FROM = "zhangmiao092@gmail.com"
 EMAIL_TO = "miao.zhang@universite-paris-saclay.fr"
-
-# ============================================================
 
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 465
 
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/5.1; +https://github.com/)"
+    "(compatible; CNSArticleAgent/6.0; +https://github.com/)"
 )
+
 
 JOURNALS = [
     {
@@ -125,7 +136,10 @@ def local_name(tag):
 
 
 def child_text(element, names):
-    names = {x.lower() for x in names}
+    names = {
+        name.lower()
+        for name in names
+    }
 
     for child in list(element):
         if local_name(child.tag) in names:
@@ -140,7 +154,11 @@ def child_text(element, names):
 
 
 def descendant_texts(element, names):
-    names = {x.lower() for x in names}
+    names = {
+        name.lower()
+        for name in names
+    }
+
     values = []
 
     for child in element.iter():
@@ -149,7 +167,10 @@ def descendant_texts(element, names):
                 "".join(child.itertext())
             )
 
-            if text and text not in values:
+            if (
+                text
+                and text not in values
+            ):
                 values.append(text)
 
     return values
@@ -174,6 +195,10 @@ def extract_link(element):
 
     return ""
 
+
+# ============================================================
+# DOI / PAPER KEY
+# ============================================================
 
 def normalize_doi(value):
     value = clean(value)
@@ -201,7 +226,11 @@ def normalize_doi(value):
     if not match:
         return ""
 
-    return match.group(0).rstrip(".,;)")
+    return (
+        match.group(0)
+        .rstrip(".,;)")
+        .lower()
+    )
 
 
 def find_doi(*values):
@@ -212,6 +241,39 @@ def find_doi(*values):
             return doi
 
     return ""
+
+
+def paper_key(paper):
+    """
+    DOI is the primary persistent identifier.
+
+    If DOI is unavailable, use normalized URL.
+    If URL is also unavailable, use a stable title hash.
+    """
+
+    doi = normalize_doi(
+        paper.get("doi", "")
+    )
+
+    if doi:
+        return "doi:" + doi
+
+    url = clean(
+        paper.get("url", "")
+    ).lower()
+
+    if url:
+        return "url:" + url
+
+    title = clean(
+        paper.get("title", "")
+    ).lower()
+
+    digest = hashlib.sha256(
+        title.encode("utf-8")
+    ).hexdigest()
+
+    return "title:" + digest
 
 
 # ============================================================
@@ -272,6 +334,14 @@ def format_date(value):
     return clean(value) or "Unavailable"
 
 
+def utc_now_iso():
+    return (
+        datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+    )
+
+
 # ============================================================
 # HTTP
 # ============================================================
@@ -290,7 +360,9 @@ def request_bytes(url, accept=None):
         headers={
             "User-Agent": UA,
             "Accept": accept,
-            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Language": (
+                "en-US,en;q=0.9"
+            ),
         },
     )
 
@@ -401,20 +473,23 @@ def parse_feed(xml_bytes, journal):
             description,
         )
 
-        papers.append(
-            {
-                "journal": journal["name"],
-                "title": title,
-                "url": link,
-                "doi": doi,
-                "date_raw": date_raw,
-                "date": format_date(
-                    date_raw
-                ),
-                "feed_types": categories,
-                "feed_description": description,
-            }
-        )
+        paper = {
+            "journal": journal["name"],
+            "target_type": (
+                journal["target_type"]
+            ),
+            "title": title,
+            "url": link,
+            "doi": doi,
+            "date_raw": date_raw,
+            "date": format_date(
+                date_raw
+            ),
+            "feed_types": categories,
+            "feed_description": description,
+        }
+
+        papers.append(paper)
 
     return papers
 
@@ -474,6 +549,13 @@ def extract_meta_tag(page, key):
 
 
 def official_abstract(page):
+    """
+    Prefer publisher-provided abstract/description metadata.
+
+    This retrieval logic has already been validated against
+    the production feeds during V3-V5 testing.
+    """
+
     candidates = []
 
     for key in [
@@ -565,12 +647,14 @@ def pubmed_abstract_by_doi(doi):
             "&retmode=xml"
         )
 
-        xml_bytes, _, _ = request_bytes(
-            fetch_url,
-            accept=(
-                "application/xml,"
-                "text/xml"
-            ),
+        xml_bytes, _, _ = (
+            request_bytes(
+                fetch_url,
+                accept=(
+                    "application/xml,"
+                    "text/xml"
+                ),
+            )
         )
 
         root = ET.fromstring(
@@ -653,7 +737,7 @@ def crossref_abstract_by_doi(doi):
 
 
 # ============================================================
-# ARTICLE FILTERING
+# ARTICLE TYPE FILTERS
 # ============================================================
 
 def normalized_types(paper):
@@ -664,6 +748,11 @@ def normalized_types(paper):
 
 
 def science_is_article(paper):
+    """
+    Science production rule:
+    normalized exact RSS type == Research Article
+    """
+
     return (
         "research article"
         in normalized_types(paper)
@@ -671,19 +760,49 @@ def science_is_article(paper):
 
 
 def cell_is_article(paper):
+    """
+    Cell production rule:
+    normalized exact RSS type == Article
+    """
+
     return (
         "article"
         in normalized_types(paper)
     )
 
 
-def nature_article(paper):
-    if not (
-        paper["doi"]
+def nature_is_candidate(paper):
+    """
+    Nature s41586 is only a candidate prefilter.
+
+    It is NOT the final publication-type classifier.
+    """
+
+    return (
+        paper.get("doi", "")
         .lower()
         .startswith(
             "10.1038/s41586-"
         )
+    )
+
+
+def classify_nature_article(paper):
+    """
+    Nature final rule:
+
+    DOI s41586 candidate
+        ->
+    official Nature article page
+        ->
+    citation_article_type == Article
+
+    This prevents Review papers with s41586 DOIs from
+    entering the production digest.
+    """
+
+    if not nature_is_candidate(
+        paper
     ):
         return None
 
@@ -692,7 +811,14 @@ def nature_article(paper):
             paper["url"]
         )
 
-    except Exception:
+    except Exception as exc:
+        print(
+            "Nature page failed:",
+            paper["title"],
+            "|",
+            type(exc).__name__,
+        )
+
         return None
 
     article_type = extract_meta_tag(
@@ -706,41 +832,59 @@ def nature_article(paper):
     ):
         return None
 
-    text, source = official_abstract(
-        page
-    )
-
-    if not text:
-        return None
-
     result = dict(paper)
 
-    result.update(
-        {
-            "article_type": "Article",
-            "scientific_text": text,
-            "source": source,
-            "quality": "HIGH",
-        }
-    )
+    result["article_type"] = "Article"
+    result["_cached_page"] = page
 
     return result
 
 
 # ============================================================
-# SCIENCE / CELL SCIENTIFIC TEXT
+# SCIENTIFIC TEXT
 # ============================================================
 
-def enrich_non_nature(
+def enrich_scientific_text(
     paper,
-    article_type,
+    cached_page=None,
 ):
-    # Official publisher page
-    try:
-        page, _, _ = request_text(
-            paper["url"]
-        )
+    """
+    Retrieval priority:
 
+    1. Official publisher page
+    2. PubMed
+    3. Crossref
+    4. RSS description
+
+    HIGH:
+      official / PubMed / Crossref
+
+    MEDIUM:
+      RSS >= 500 chars
+
+    LOW:
+      RSS 150-499 chars
+
+    NONE:
+      insufficient scientific text
+    """
+
+    # --------------------------------------------------------
+    # 1. OFFICIAL PAGE
+    # --------------------------------------------------------
+
+    page = cached_page
+
+    if page is None:
+        try:
+            page, _, _ = request_text(
+                paper["url"]
+            )
+
+        except Exception:
+            page = None
+
+    if page:
         text, source = official_abstract(
             page
         )
@@ -750,21 +894,25 @@ def enrich_non_nature(
 
             result.update(
                 {
-                    "article_type": article_type,
                     "scientific_text": text,
                     "source": source,
                     "quality": "HIGH",
                 }
             )
 
+            result.pop(
+                "_cached_page",
+                None,
+            )
+
             return result
 
-    except Exception:
-        pass
+    # --------------------------------------------------------
+    # 2. PUBMED
+    # --------------------------------------------------------
 
-    # PubMed
     text = pubmed_abstract_by_doi(
-        paper["doi"]
+        paper.get("doi", "")
     )
 
     if len(text) >= 100:
@@ -772,18 +920,25 @@ def enrich_non_nature(
 
         result.update(
             {
-                "article_type": article_type,
                 "scientific_text": text,
                 "source": "PUBMED",
                 "quality": "HIGH",
             }
         )
 
+        result.pop(
+            "_cached_page",
+            None,
+        )
+
         return result
 
-    # Crossref
+    # --------------------------------------------------------
+    # 3. CROSSREF
+    # --------------------------------------------------------
+
     text = crossref_abstract_by_doi(
-        paper["doi"]
+        paper.get("doi", "")
     )
 
     if len(text) >= 100:
@@ -791,18 +946,28 @@ def enrich_non_nature(
 
         result.update(
             {
-                "article_type": article_type,
                 "scientific_text": text,
                 "source": "CROSSREF",
                 "quality": "HIGH",
             }
         )
 
+        result.pop(
+            "_cached_page",
+            None,
+        )
+
         return result
 
-    # RSS
+    # --------------------------------------------------------
+    # 4. RSS
+    # --------------------------------------------------------
+
     text = clean(
-        paper["feed_description"]
+        paper.get(
+            "feed_description",
+            "",
+        )
     )
 
     if len(text) >= 500:
@@ -818,7 +983,6 @@ def enrich_non_nature(
 
     result.update(
         {
-            "article_type": article_type,
             "scientific_text": text,
             "source": (
                 "RSS_DESCRIPTION"
@@ -829,87 +993,324 @@ def enrich_non_nature(
         }
     )
 
+    result.pop(
+        "_cached_page",
+        None,
+    )
+
     return result
 
 
 # ============================================================
-# SELECT THREE TEST PAPERS
+# DISCOVERY
 # ============================================================
 
-def get_test_papers():
-    selected = []
+def discover_target_articles():
+    """
+    Discover all currently visible target-type papers.
 
-    # Nature — one HIGH
-    nature_papers = fetch_feed(
+    IMPORTANT:
+    No publication-date cutoff is used.
+
+    Persistent state is the discovery boundary.
+    """
+
+    targets = []
+
+    print()
+    print("=" * 78)
+    print("DISCOVERY")
+    print("=" * 78)
+
+    # --------------------------------------------------------
+    # NATURE
+    # --------------------------------------------------------
+
+    print()
+    print("Fetching Nature...")
+
+    nature_feed = fetch_feed(
         JOURNALS[0]
     )
 
-    for paper in nature_papers:
-        result = nature_article(
-            paper
+    nature_count = 0
+
+    for paper in nature_feed:
+        classified = (
+            classify_nature_article(
+                paper
+            )
         )
 
-        if (
-            result
-            and result["quality"] == "HIGH"
-        ):
-            selected.append(result)
-            break
+        if not classified:
+            continue
 
-    # Science — one HIGH
-    science_papers = fetch_feed(
+        targets.append(classified)
+        nature_count += 1
+
+    print(
+        "Nature target Articles:",
+        nature_count,
+    )
+
+    # --------------------------------------------------------
+    # SCIENCE
+    # --------------------------------------------------------
+
+    print()
+    print("Fetching Science...")
+
+    science_feed = fetch_feed(
         JOURNALS[1]
     )
 
-    for paper in science_papers:
+    science_count = 0
+
+    for paper in science_feed:
         if not science_is_article(
             paper
         ):
             continue
 
-        result = enrich_non_nature(
-            paper,
-            "Research Article",
+        result = dict(paper)
+
+        result["article_type"] = (
+            "Research Article"
         )
 
-        if result["quality"] == "HIGH":
-            selected.append(result)
-            break
+        targets.append(result)
+        science_count += 1
 
-    # Cell — one HIGH
-    cell_papers = fetch_feed(
+    print(
+        "Science target Research Articles:",
+        science_count,
+    )
+
+    # --------------------------------------------------------
+    # CELL
+    # --------------------------------------------------------
+
+    print()
+    print("Fetching Cell...")
+
+    cell_feed = fetch_feed(
         JOURNALS[2]
     )
 
-    cell_papers = [
-        paper
-        for paper in cell_papers
-        if cell_is_article(paper)
-    ]
+    cell_count = 0
 
-    cell_papers.sort(
-        key=lambda paper: (
-            parse_date(
-                paper["date_raw"]
-            )
-            or datetime.min.replace(
-                tzinfo=timezone.utc
-            )
-        ),
-        reverse=True,
-    )
+    for paper in cell_feed:
+        if not cell_is_article(
+            paper
+        ):
+            continue
 
-    for paper in cell_papers:
-        result = enrich_non_nature(
-            paper,
-            "Article",
+        result = dict(paper)
+
+        result["article_type"] = (
+            "Article"
         )
 
-        if result["quality"] == "HIGH":
-            selected.append(result)
-            break
+        targets.append(result)
+        cell_count += 1
 
-    return selected
+    print(
+        "Cell target Articles:",
+        cell_count,
+    )
+
+    print()
+    print(
+        "Total target papers visible:",
+        len(targets),
+    )
+
+    return targets
+
+
+# ============================================================
+# STATE
+# ============================================================
+
+def default_state():
+    return {
+        "version": 1,
+        "initialized": False,
+        "last_successful_run": None,
+        "seen_papers": {},
+    }
+
+
+def load_state():
+    if not os.path.exists(
+        STATE_FILE
+    ):
+        print(
+            "State file does not exist. "
+            "Using fresh state."
+        )
+
+        return default_state()
+
+    try:
+        with open(
+            STATE_FILE,
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            state = json.load(handle)
+
+    except Exception as exc:
+        raise RuntimeError(
+            "Could not read agent_state.json: "
+            + str(exc)
+        )
+
+    if not isinstance(
+        state.get("seen_papers"),
+        dict,
+    ):
+        state["seen_papers"] = {}
+
+    state.setdefault(
+        "version",
+        1,
+    )
+
+    state.setdefault(
+        "initialized",
+        False,
+    )
+
+    state.setdefault(
+        "last_successful_run",
+        None,
+    )
+
+    return state
+
+
+def state_record(paper, timestamp):
+    return {
+        "journal": paper.get(
+            "journal",
+            "",
+        ),
+        "title": paper.get(
+            "title",
+            "",
+        ),
+        "doi": paper.get(
+            "doi",
+            "",
+        ),
+        "url": paper.get(
+            "url",
+            "",
+        ),
+        "publication_date": paper.get(
+            "date",
+            "",
+        ),
+        "article_type": paper.get(
+            "article_type",
+            "",
+        ),
+        "seen_at": timestamp,
+    }
+
+
+def save_state_atomic(state):
+    """
+    Write a temporary file first and then replace state.
+
+    This reduces the chance of leaving a partially written
+    JSON file if the process is interrupted.
+    """
+
+    temp_file = (
+        STATE_FILE + ".tmp"
+    )
+
+    with open(
+        temp_file,
+        "w",
+        encoding="utf-8",
+    ) as handle:
+        json.dump(
+            state,
+            handle,
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+
+        handle.write("\n")
+
+    os.replace(
+        temp_file,
+        STATE_FILE,
+    )
+
+
+def initialize_baseline(
+    state,
+    targets,
+):
+    """
+    FIRST PRODUCTION RUN ONLY.
+
+    Record all currently visible target papers as seen.
+
+    Send NO historical digest.
+
+    This prevents the first production run from emailing
+    the entire existing feed history.
+    """
+
+    timestamp = utc_now_iso()
+
+    for paper in targets:
+        key = paper_key(paper)
+
+        state["seen_papers"][key] = (
+            state_record(
+                paper,
+                timestamp,
+            )
+        )
+
+    state["initialized"] = True
+
+    state["last_successful_run"] = (
+        timestamp
+    )
+
+    save_state_atomic(state)
+
+    return len(targets)
+
+
+def unseen_papers(
+    state,
+    targets,
+):
+    seen = state.get(
+        "seen_papers",
+        {},
+    )
+
+    results = []
+
+    for paper in targets:
+        key = paper_key(paper)
+
+        if key in seen:
+            continue
+
+        results.append(paper)
+
+    return results
 
 
 # ============================================================
@@ -1199,7 +1600,9 @@ def call_openai(paper):
         "text": {
             "format": {
                 "type": "json_schema",
-                "name": "scientific_analysis",
+                "name": (
+                    "scientific_analysis"
+                ),
                 "strict": True,
                 "schema": schema,
             }
@@ -1226,7 +1629,7 @@ def call_openai(paper):
 
     with urllib.request.urlopen(
         request,
-        timeout=120,
+        timeout=OPENAI_TIMEOUT,
         context=context,
     ) as response:
         raw = response.read()
@@ -1264,7 +1667,9 @@ def call_openai(paper):
             "OpenAI returned no output_text."
         )
 
-    return json.loads(output_text)
+    return json.loads(
+        output_text
+    )
 
 
 # ============================================================
@@ -1277,6 +1682,29 @@ def esc(value):
     )
 
 
+def quality_description(quality):
+    if quality == "HIGH":
+        return (
+            "HIGH — scientific abstract/text "
+            "retrieved from an authoritative source"
+        )
+
+    if quality == "MEDIUM":
+        return (
+            "MEDIUM — extended RSS scientific summary"
+        )
+
+    if quality == "LOW":
+        return (
+            "LOW — limited RSS summary; "
+            "methodological detail may be incomplete"
+        )
+
+    return (
+        "NONE — insufficient scientific text"
+    )
+
+
 def analysis_html(
     paper,
     analysis,
@@ -1285,10 +1713,18 @@ def analysis_html(
 
     for method in analysis["methods"]:
         methods += f"""
-        <li style="margin-bottom:10px;">
-          <strong>{esc(method["method"])}</strong><br>
-          <span style="color:#555555;">
-            Purpose: {esc(method["purpose"])}
+        <li style="
+            margin-bottom:10px;
+        ">
+          <strong>
+            {esc(method["method"])}
+          </strong>
+          <br>
+          <span style="
+              color:#555555;
+          ">
+            Purpose:
+            {esc(method["purpose"])}
           </span>
         </li>
         """
@@ -1298,11 +1734,19 @@ def analysis_html(
     for finding in analysis[
         "key_findings"
     ]:
-        findings += (
-            "<li style='margin-bottom:8px;'>"
-            + esc(finding)
-            + "</li>"
-        )
+        findings += f"""
+        <li style="
+            margin-bottom:8px;
+        ">
+          {esc(finding)}
+        </li>
+        """
+
+    doi_html = (
+        esc(paper["doi"])
+        if paper.get("doi")
+        else "Unavailable"
+    )
 
     return f"""
     <div style="
@@ -1320,7 +1764,8 @@ def analysis_html(
           margin-bottom:8px;
       ">
         {esc(paper["journal"])}
-        · {esc(paper["article_type"])}
+        ·
+        {esc(paper["article_type"])}
       </div>
 
       <h2 style="
@@ -1337,10 +1782,26 @@ def analysis_html(
           margin-bottom:18px;
           line-height:1.7;
       ">
-        Date: {esc(paper["date"])}<br>
-        DOI: {esc(paper["doi"])}<br>
-        Scientific source: {esc(paper["source"])}<br>
-        Evidence: <strong>{esc(paper["quality"])}</strong>
+        Publication date:
+        {esc(paper["date"])}
+        <br>
+
+        DOI:
+        {doi_html}
+        <br>
+
+        Scientific source:
+        {esc(paper["source"])}
+        <br>
+
+        Evidence:
+        <strong>
+          {esc(
+              quality_description(
+                  paper["quality"]
+              )
+          )}
+        </strong>
       </div>
 
       <p>
@@ -1356,43 +1817,91 @@ def analysis_html(
       ">
 
       <h3>Research question</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["research_question"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "research_question"
+            ]
+        )}
       </p>
 
       <h3>Study system</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["study_system"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "study_system"
+            ]
+        )}
       </p>
 
       <h3>Methods</h3>
-      <ol style="line-height:1.55;">
+
+      <ol style="
+          line-height:1.55;
+      ">
         {methods}
       </ol>
 
       <h3>Key findings</h3>
-      <ul style="line-height:1.55;">
+
+      <ul style="
+          line-height:1.55;
+      ">
         {findings}
       </ul>
 
       <h3>Conceptual innovation</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["conceptual_innovation"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "conceptual_innovation"
+            ]
+        )}
       </p>
 
       <h3>Methodological innovation</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["methodological_innovation"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "methodological_innovation"
+            ]
+        )}
       </p>
 
       <h3>Why it matters</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["why_it_matters"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "why_it_matters"
+            ]
+        )}
       </p>
 
       <h3>Evidence limitations</h3>
-      <p style="line-height:1.65;">
-        {esc(analysis["evidence_limitations"])}
+
+      <p style="
+          line-height:1.65;
+      ">
+        {esc(
+            analysis[
+                "evidence_limitations"
+            ]
+        )}
       </p>
 
     </div>
@@ -1400,13 +1909,27 @@ def analysis_html(
 
 
 def build_email_html(results):
-    today = datetime.now(
+    now = datetime.now(
         timezone.utc
-    ).date().isoformat()
+    )
+
+    date_label = (
+        now.date().isoformat()
+    )
 
     cards = ""
 
+    journal_counts = {
+        "Nature": 0,
+        "Science": 0,
+        "Cell": 0,
+    }
+
     for paper, analysis in results:
+        journal_counts[
+            paper["journal"]
+        ] += 1
+
         cards += analysis_html(
             paper,
             analysis,
@@ -1448,12 +1971,26 @@ def build_email_html(results):
           <div style="
               color:#666666;
               font-size:14px;
+              line-height:1.7;
           ">
             Nature · Science · Cell
+            <br>
+
+            {date_label}
+            &nbsp;·&nbsp;
+            {len(results)} new paper(s)
+            <br>
+
+            Nature:
+            {journal_counts["Nature"]}
             &nbsp;|&nbsp;
-            V5.1 English Email Test
+
+            Science:
+            {journal_counts["Science"]}
             &nbsp;|&nbsp;
-            {today}
+
+            Cell:
+            {journal_counts["Cell"]}
           </div>
 
         </div>
@@ -1467,10 +2004,13 @@ def build_email_html(results):
             margin-top:20px;
         ">
           AI analysis is based only on scientific text
-          retrieved by the agent. Evidence quality reflects
-          the completeness and provenance of the available
-          scientific text. LOW-evidence summaries may not
-          contain sufficient methodological detail.
+          retrieved by the agent.
+
+          Evidence quality reflects the provenance and
+          completeness of the available scientific text.
+
+          LOW-evidence summaries may not contain sufficient
+          methodological detail.
         </div>
 
       </div>
@@ -1496,29 +2036,27 @@ def send_email(results):
             "GMAIL_APP_PASSWORD is missing."
         )
 
-    if (
-        "YOUR_GMAIL" in EMAIL_FROM
-        or "YOUR_GMAIL" in EMAIL_TO
-    ):
-        raise RuntimeError(
-            "Replace EMAIL_FROM and EMAIL_TO "
-            "with your Gmail address."
-        )
-
     msg = EmailMessage()
 
     msg["From"] = EMAIL_FROM
     msg["To"] = EMAIL_TO
 
+    today = datetime.now(
+        timezone.utc
+    ).date().isoformat()
+
     msg["Subject"] = (
-        "[TEST] CNS Research Digest "
-        f"— {len(results)} papers"
+        "CNS Research Digest"
+        f" — {today}"
+        f" — {len(results)} new paper(s)"
     )
 
     msg.set_content(
         (
-            "CNS Research Digest English test email.\n\n"
-            "Please view the HTML version."
+            "CNS Research Digest\n\n"
+            f"{len(results)} new paper(s).\n\n"
+            "Please view the HTML version "
+            "for the full analysis."
         )
     )
 
@@ -1527,20 +2065,139 @@ def send_email(results):
         subtype="html",
     )
 
-    context = ssl.create_default_context()
+    context = (
+        ssl.create_default_context()
+    )
 
     with smtplib.SMTP_SSL(
         SMTP_HOST,
         SMTP_PORT,
         context=context,
     ) as server:
-
         server.login(
             EMAIL_FROM,
             password,
         )
 
         server.send_message(msg)
+
+
+# ============================================================
+# PROCESS NEW PAPERS
+# ============================================================
+
+def process_new_papers(papers):
+    results = []
+
+    total = len(papers)
+
+    print()
+    print("=" * 78)
+    print("SCIENTIFIC TEXT + OPENAI")
+    print("=" * 78)
+
+    for index, paper in enumerate(
+        papers,
+        start=1,
+    ):
+        print()
+        print(
+            f"[{index}/{total}]",
+            paper["journal"],
+            "|",
+            paper["title"],
+        )
+
+        cached_page = paper.get(
+            "_cached_page"
+        )
+
+        enriched = (
+            enrich_scientific_text(
+                paper,
+                cached_page=cached_page,
+            )
+        )
+
+        print(
+            "Source:",
+            enriched["source"],
+        )
+
+        print(
+            "Evidence:",
+            enriched["quality"],
+        )
+
+        print(
+            "Scientific text chars:",
+            len(
+                enriched[
+                    "scientific_text"
+                ]
+            ),
+        )
+
+        if (
+            enriched["quality"]
+            == "NONE"
+        ):
+            print(
+                "SKIP: insufficient "
+                "scientific text."
+            )
+
+            continue
+
+        print(
+            "Running OpenAI..."
+        )
+
+        analysis = call_openai(
+            enriched
+        )
+
+        print(
+            "OpenAI: SUCCESS"
+        )
+
+        results.append(
+            (
+                enriched,
+                analysis,
+            )
+        )
+
+    return results
+
+
+# ============================================================
+# UPDATE STATE AFTER SUCCESSFUL EMAIL
+# ============================================================
+
+def update_state_after_email(
+    state,
+    results,
+):
+    timestamp = utc_now_iso()
+
+    for paper, _analysis in results:
+        key = paper_key(paper)
+
+        state["seen_papers"][key] = (
+            state_record(
+                paper,
+                timestamp,
+            )
+        )
+
+    state["last_successful_run"] = (
+        timestamp
+    )
+
+    state["initialized"] = True
+
+    save_state_atomic(state)
 
 
 # ============================================================
@@ -1551,90 +2208,238 @@ def main():
     print("=" * 78)
 
     print(
-        "CNS ARTICLE AGENT V5.1 "
-        "— ENGLISH EMAIL TEST"
+        "CNS ARTICLE AGENT V6 "
+        "— PRODUCTION"
     )
 
     print("=" * 78)
 
     print()
-    print("OpenAI : ON")
-    print("Language: ENGLISH")
-    print("Email  : ON")
-    print("Dedup  : OFF")
-    print("State  : OFF")
-    print("Schedule: OFF")
-    print("Test papers: 3")
-
-    print()
+    print(
+        "Version :",
+        VERSION,
+    )
 
     print(
-        "Retrieving one HIGH-evidence "
-        "paper per journal..."
+        "OpenAI  : ON"
     )
 
-    papers = get_test_papers()
+    print(
+        "Language: ENGLISH"
+    )
 
-    if len(papers) != 3:
-        raise RuntimeError(
-            "Expected exactly 3 papers, "
-            f"but selected {len(papers)}."
+    print(
+        "Email   : ON"
+    )
+
+    print(
+        "Dedup   : ON"
+    )
+
+    print(
+        "State   : ON"
+    )
+
+    print(
+        "Date cutoff: OFF"
+    )
+
+    print()
+
+    # --------------------------------------------------------
+    # LOAD STATE
+    # --------------------------------------------------------
+
+    state = load_state()
+
+    print(
+        "State initialized:",
+        state["initialized"],
+    )
+
+    print(
+        "Seen papers:",
+        len(
+            state["seen_papers"]
+        ),
+    )
+
+    print(
+        "Last successful run:",
+        state["last_successful_run"],
+    )
+
+    # --------------------------------------------------------
+    # DISCOVER CURRENT TARGET PAPERS
+    # --------------------------------------------------------
+
+    targets = (
+        discover_target_articles()
+    )
+
+    # --------------------------------------------------------
+    # FIRST RUN = BASELINE
+    # --------------------------------------------------------
+
+    if not state["initialized"]:
+        print()
+        print("=" * 78)
+        print("FIRST PRODUCTION RUN")
+        print("=" * 78)
+
+        print()
+        print(
+            "Creating baseline."
         )
+
+        print(
+            "Current feed papers will be "
+            "recorded as seen."
+        )
+
+        print(
+            "NO historical digest email "
+            "will be sent."
+        )
+
+        count = initialize_baseline(
+            state,
+            targets,
+        )
+
+        print()
+        print(
+            "Baseline papers recorded:",
+            count,
+        )
+
+        print()
+        print("=" * 78)
+
+        print(
+            "BASELINE INITIALIZATION SUCCESS"
+        )
+
+        print("=" * 78)
+
+        return
+
+    # --------------------------------------------------------
+    # FIND UNSEEN PAPERS
+    # --------------------------------------------------------
+
+    new_papers = unseen_papers(
+        state,
+        targets,
+    )
 
     print()
     print("=" * 78)
-    print("SELECTED PAPERS")
+    print("DEDUP")
     print("=" * 78)
 
+    print()
+    print(
+        "Target papers currently visible:",
+        len(targets),
+    )
+
+    print(
+        "New unseen papers:",
+        len(new_papers),
+    )
+
+    # --------------------------------------------------------
+    # NOTHING NEW
+    # --------------------------------------------------------
+
+    if not new_papers:
+        print()
+        print(
+            "No new target papers."
+        )
+
+        print(
+            "No OpenAI calls."
+        )
+
+        print(
+            "No email sent."
+        )
+
+        print(
+            "State unchanged."
+        )
+
+        print()
+        print("=" * 78)
+        print("V6 FINISHED — NOTHING NEW")
+        print("=" * 78)
+
+        return
+
+    # --------------------------------------------------------
+    # PRINT NEW PAPERS
+    # --------------------------------------------------------
+
+    print()
+    print("NEW PAPERS:")
+
     for index, paper in enumerate(
-        papers,
+        new_papers,
         start=1,
     ):
         print(
             index,
             paper["journal"],
             "|",
-            paper["quality"],
-            "|",
-            paper["source"],
+            paper["article_type"],
             "|",
             paper["title"],
+            "|",
+            paper["doi"],
         )
 
-    results = []
+    # --------------------------------------------------------
+    # SCIENTIFIC TEXT + AI
+    # --------------------------------------------------------
+
+    results = process_new_papers(
+        new_papers
+    )
 
     print()
     print("=" * 78)
-    print("OPENAI ANALYSIS")
+    print("ANALYSIS SUMMARY")
     print("=" * 78)
 
-    for index, paper in enumerate(
-        papers,
-        start=1,
+    print()
+    print(
+        "New papers discovered:",
+        len(new_papers),
+    )
+
+    print(
+        "Papers successfully analyzed:",
+        len(results),
+    )
+
+    # --------------------------------------------------------
+    # IMPORTANT SAFETY RULE
+    # --------------------------------------------------------
+
+    if len(results) != len(
+        new_papers
     ):
-        print()
-
-        print(
-            f"Analyzing {index}/3:",
-            paper["journal"],
-            "-",
-            paper["title"],
+        raise RuntimeError(
+            "Not all new papers were successfully "
+            "analyzed. Email and state update aborted. "
+            "No paper will be marked as seen."
         )
 
-        analysis = call_openai(
-            paper
-        )
-
-        results.append(
-            (
-                paper,
-                analysis,
-            )
-        )
-
-        print(
-            f"AI {index}/3: SUCCESS"
-        )
+    # --------------------------------------------------------
+    # EMAIL
+    # --------------------------------------------------------
 
     print()
     print("=" * 78)
@@ -1644,29 +2449,42 @@ def main():
     send_email(results)
 
     print()
-    print("EMAIL: SUCCESS")
+    print(
+        "EMAIL: SUCCESS"
+    )
+
+    # --------------------------------------------------------
+    # ONLY NOW UPDATE STATE
+    # --------------------------------------------------------
+
+    print()
+    print("=" * 78)
+    print("UPDATING STATE")
+    print("=" * 78)
+
+    update_state_after_email(
+        state,
+        results,
+    )
+
+    print()
+    print(
+        "STATE UPDATE: SUCCESS"
+    )
+
+    print(
+        "Papers marked as seen:",
+        len(results),
+    )
 
     print()
     print("=" * 78)
 
     print(
-        "V5.1 ENGLISH EMAIL TEST SUCCESS"
+        "V6 PRODUCTION RUN SUCCESS"
     )
 
     print("=" * 78)
-
-    print()
-    print(
-        "No state file was changed."
-    )
-
-    print(
-        "No papers were marked as seen."
-    )
-
-    print(
-        "No schedule is active."
-    )
 
 
 if __name__ == "__main__":
