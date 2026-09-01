@@ -1,10 +1,10 @@
-name: CNS Article Agent V1 Test
+name: CNS Article Agent V4 Test
 
 on:
   workflow_dispatch:
 
 jobs:
-  retrieval-test:
+  ai-analysis-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,5 +16,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run CNS Article Agent V1
+      - name: Run CNS Article Agent V4
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python cns_article_agent.py
