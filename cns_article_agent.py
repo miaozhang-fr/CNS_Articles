@@ -51,8 +51,8 @@ OPENAI_MODEL = "gpt-5.6-luna"
 # IMPORTANT — CHANGE THESE TWO
 # ============================================================
 
-EMAIL_FROM = "YOUR_GMAIL@gmail.com"
-EMAIL_TO = "YOUR_GMAIL@gmail.com"
+EMAIL_FROM = "zhangmiao092@gmail.com"
+EMAIL_TO = "miao.zhang@universite-paris-saclay.fr"
 
 # ============================================================
 
