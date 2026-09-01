@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V2 — Type & Coverage Diagnostic
+CNS Article Agent V3 — Abstract Retrieval Test
 
 Targets:
 - Nature  -> Article
@@ -10,30 +10,25 @@ Targets:
 - Cell    -> Article
 
 Purpose:
-1. Science:
-   Test exact RSS metadata filtering for "Research Article".
-
-2. Nature:
-   RSS does not expose article type reliably.
-   Inspect DOI pattern + official article-page metadata.
-
-3. Cell:
-   RSS returned items but none inside the previous 7-day window.
-   Print ALL feed items regardless of date and inspect type/date metadata.
+1. Apply the article-type rules established in V2.
+2. Retrieve up to 10 target papers per journal.
+3. Try to obtain a substantive abstract/scientific summary.
+4. Report abstract source, length, and text.
 
 No OpenAI.
 No email.
-No dedup.
+No persistent dedup.
 """
 
 import html
 import json
 import re
 import ssl
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 
@@ -41,25 +36,20 @@ from email.utils import parsedate_to_datetime
 # SETTINGS
 # ============================================================
 
-SEARCH_DAYS = 7
 TIMEOUT = 30
 MAX_FEED_ITEMS = 500
-
-# Avoid making too many requests to Nature during diagnostics.
-MAX_NATURE_PAGE_CHECKS = 30
+MAX_TARGETS_PER_JOURNAL = 10
 
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/2.0; +https://github.com/)"
+    "(compatible; CNSArticleAgent/3.0; +https://github.com/)"
 )
-
 
 JOURNALS = [
     {
         "name": "Nature",
         "target_type": "Article",
         "feed": "https://www.nature.com/nature.rss",
-        "landing": "https://www.nature.com/nature/articles",
     },
     {
         "name": "Science",
@@ -68,7 +58,6 @@ JOURNALS = [
             "https://www.science.org/action/showFeed"
             "?type=etoc&feed=rss&jc=science"
         ),
-        "landing": "https://www.science.org/toc/science/current",
     },
     {
         "name": "Cell",
@@ -77,7 +66,6 @@ JOURNALS = [
             "https://www.cell.com/action/showFeed"
             "?type=etoc&feed=rss&jc=cell"
         ),
-        "landing": "https://www.cell.com/cell/current",
     },
 ]
 
@@ -103,7 +91,7 @@ def local_name(tag):
 
 
 def child_text(element, names):
-    names = {name.lower() for name in names}
+    names = {x.lower() for x in names}
 
     for child in list(element):
         if local_name(child.tag) in names:
@@ -116,7 +104,7 @@ def child_text(element, names):
 
 
 def descendant_texts(element, names):
-    names = {name.lower() for name in names}
+    names = {x.lower() for x in names}
     values = []
 
     for child in element.iter():
@@ -132,6 +120,7 @@ def descendant_texts(element, names):
 def extract_link(element):
     for child in list(element):
         if local_name(child.tag) == "link":
+
             href = child.attrib.get("href")
 
             if href:
@@ -141,13 +130,6 @@ def extract_link(element):
 
             if text.startswith("http"):
                 return text
-
-    for child in element.iter():
-        if local_name(child.tag) == "link":
-            href = child.attrib.get("href")
-
-            if href:
-                return href.strip()
 
     return ""
 
@@ -214,8 +196,9 @@ def parse_date(value):
         pass
 
     try:
-        iso_value = value.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(iso_value)
+        dt = datetime.fromisoformat(
+            value.replace("Z", "+00:00")
+        )
 
         if not dt.tzinfo:
             dt = dt.replace(tzinfo=timezone.utc)
@@ -258,7 +241,6 @@ def request_bytes(url, accept=None):
     if accept is None:
         accept = (
             "application/rss+xml,"
-            "application/atom+xml,"
             "application/xml,"
             "text/xml,"
             "text/html;q=0.8"
@@ -288,24 +270,42 @@ def request_bytes(url, accept=None):
         )
 
 
+def request_text(url):
+    raw, content_type, final_url = request_bytes(
+        url,
+        accept="text/html,application/xhtml+xml",
+    )
+
+    text = raw.decode(
+        "utf-8",
+        errors="replace",
+    )
+
+    return text, content_type, final_url
+
+
 # ============================================================
-# FEED PARSING
+# FEED
 # ============================================================
 
 def parse_feed(xml_bytes, journal):
     root = ET.fromstring(xml_bytes)
 
     entries = [
-        element
-        for element in root.iter()
-        if local_name(element.tag) in ("item", "entry")
+        x
+        for x in root.iter()
+        if local_name(x.tag) in ("item", "entry")
     ]
 
     papers = []
 
     for entry in entries[:MAX_FEED_ITEMS]:
 
-        title = child_text(entry, ["title"])
+        title = child_text(
+            entry,
+            ["title"],
+        )
+
         link = extract_link(entry)
 
         date_text = child_text(
@@ -331,10 +331,7 @@ def parse_feed(xml_bytes, journal):
 
         identifiers = descendant_texts(
             entry,
-            [
-                "identifier",
-                "doi",
-            ],
+            ["identifier", "doi"],
         )
 
         categories = descendant_texts(
@@ -362,8 +359,8 @@ def parse_feed(xml_bytes, journal):
                 "date": format_date(date_text),
                 "doi": doi,
                 "url": link,
-                "feed_type_metadata": categories,
-                "description": description,
+                "feed_types": categories,
+                "feed_description": description,
             }
         )
 
@@ -371,29 +368,21 @@ def parse_feed(xml_bytes, journal):
 
 
 def fetch_feed(journal):
-    raw, content_type, final_url = request_bytes(
+    raw, _, _ = request_bytes(
         journal["feed"]
     )
 
-    papers = parse_feed(
+    return parse_feed(
         raw,
         journal,
     )
 
-    return papers, content_type, final_url
-
 
 # ============================================================
-# NATURE PAGE METADATA
+# HTML META
 # ============================================================
 
 def extract_meta_tag(page, key):
-    """
-    Try both:
-    <meta name="..." content="...">
-    <meta property="..." content="...">
-    """
-
     patterns = [
         rf'<meta[^>]+name=["\']{re.escape(key)}["\'][^>]+content=["\']([^"\']+)["\']',
         rf'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']{re.escape(key)}["\']',
@@ -409,13 +398,15 @@ def extract_meta_tag(page, key):
         )
 
         if match:
-            return clean(match.group(1))
+            return clean(
+                match.group(1)
+            )
 
     return ""
 
 
-def extract_jsonld_types(page):
-    results = []
+def extract_jsonld(page):
+    blocks = []
 
     pattern = re.compile(
         r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>',
@@ -423,589 +414,757 @@ def extract_jsonld_types(page):
     )
 
     for match in pattern.finditer(page):
-        raw = html.unescape(match.group(1)).strip()
+
+        raw = html.unescape(
+            match.group(1)
+        ).strip()
 
         try:
-            data = json.loads(raw)
+            blocks.append(
+                json.loads(raw)
+            )
         except Exception:
             continue
 
-        stack = [data]
-
-        while stack:
-            obj = stack.pop()
-
-            if isinstance(obj, dict):
-
-                obj_type = obj.get("@type")
-
-                if isinstance(obj_type, str):
-                    if obj_type not in results:
-                        results.append(obj_type)
-
-                elif isinstance(obj_type, list):
-                    for item in obj_type:
-                        if isinstance(item, str):
-                            if item not in results:
-                                results.append(item)
-
-                stack.extend(obj.values())
-
-            elif isinstance(obj, list):
-                stack.extend(obj)
-
-    return results
+    return blocks
 
 
-def detect_nature_page_type(url):
+def walk_json(value):
+    if isinstance(value, dict):
+
+        yield value
+
+        for child in value.values():
+            yield from walk_json(child)
+
+    elif isinstance(value, list):
+
+        for child in value:
+            yield from walk_json(child)
+
+
+# ============================================================
+# ABSTRACT EXTRACTION
+# ============================================================
+
+def abstract_from_jsonld(page):
+    candidates = []
+
+    for block in extract_jsonld(page):
+
+        for obj in walk_json(block):
+
+            value = obj.get("abstract")
+
+            if isinstance(value, str):
+                text = clean(value)
+
+                if len(text) >= 100:
+                    candidates.append(text)
+
+            value = obj.get("description")
+
+            if isinstance(value, str):
+                text = clean(value)
+
+                if len(text) >= 150:
+                    candidates.append(text)
+
+    if not candidates:
+        return ""
+
+    candidates.sort(
+        key=len,
+        reverse=True,
+    )
+
+    return candidates[0]
+
+
+def abstract_from_meta(page):
+    keys = [
+        "citation_abstract",
+        "dc.description",
+        "DC.description",
+        "description",
+        "og:description",
+    ]
+
+    candidates = []
+
+    for key in keys:
+        text = extract_meta_tag(
+            page,
+            key,
+        )
+
+        if len(text) >= 150:
+            candidates.append(
+                (
+                    key,
+                    text,
+                )
+            )
+
+    if not candidates:
+        return "", ""
+
+    candidates.sort(
+        key=lambda x: len(x[1]),
+        reverse=True,
+    )
+
+    return candidates[0][1], (
+        "HTML_META:"
+        + candidates[0][0]
+    )
+
+
+def abstract_from_html_patterns(page):
+    """
+    Diagnostic fallback.
+
+    Tries common abstract containers used by publisher pages.
+    """
+
+    patterns = [
+        r'<div[^>]+id=["\']Abs1-content["\'][^>]*>(.*?)</div>',
+        r'<div[^>]+class=["\'][^"\']*abstract[^"\']*["\'][^>]*>(.*?)</div>',
+        r'<section[^>]+class=["\'][^"\']*abstract[^"\']*["\'][^>]*>(.*?)</section>',
+    ]
+
+    candidates = []
+
+    for pattern in patterns:
+
+        for match in re.finditer(
+            pattern,
+            page,
+            flags=re.I | re.S,
+        ):
+
+            text = clean(
+                match.group(1)
+            )
+
+            if len(text) >= 150:
+                candidates.append(
+                    text
+                )
+
+    if not candidates:
+        return ""
+
+    candidates.sort(
+        key=len,
+        reverse=True,
+    )
+
+    return candidates[0]
+
+
+def retrieve_page_abstract(url):
     if not url:
         return {
             "status": "NO_URL",
-            "article_type": "",
-            "citation_article_type": "",
-            "dc_type": "",
-            "og_type": "",
-            "jsonld_types": [],
-            "page_signals": [],
+            "abstract": "",
+            "source": "",
+            "final_url": "",
         }
 
     try:
-        raw, content_type, final_url = request_bytes(
-            url,
-            accept="text/html,application/xhtml+xml",
-        )
-
-        page = raw.decode(
-            "utf-8",
-            errors="replace",
+        page, _, final_url = request_text(
+            url
         )
 
     except Exception as exc:
-
         return {
             "status": (
-                f"FAILED: {type(exc).__name__}: {exc}"
+                f"FAILED: "
+                f"{type(exc).__name__}: {exc}"
             ),
-            "article_type": "",
-            "citation_article_type": "",
-            "dc_type": "",
-            "og_type": "",
-            "jsonld_types": [],
-            "page_signals": [],
+            "abstract": "",
+            "source": "",
+            "final_url": "",
         }
 
-    citation_article_type = extract_meta_tag(
-        page,
-        "citation_article_type",
-    )
-
-    dc_type = (
-        extract_meta_tag(page, "dc.type")
-        or extract_meta_tag(page, "DC.type")
-        or extract_meta_tag(page, "DC.Type")
-    )
-
-    og_type = extract_meta_tag(
-        page,
-        "og:type",
-    )
-
-    jsonld_types = extract_jsonld_types(
+    # 1. citation/meta abstract
+    abstract, source = abstract_from_meta(
         page
     )
 
-    page_signals = []
+    if abstract:
+        return {
+            "status": "OK",
+            "abstract": abstract,
+            "source": source,
+            "final_url": final_url,
+        }
 
-    # Diagnostic only:
-    # search visible/HTML source for likely Nature content labels.
-    labels = [
-        "Article",
-        "Review Article",
-        "News",
-        "News Feature",
-        "Editorial",
-        "Comment",
-        "World View",
-        "Career Column",
-        "Nature Briefing",
-    ]
-
-    for label in labels:
-
-        pattern = (
-            r">\s*"
-            + re.escape(label)
-            + r"\s*<"
-        )
-
-        if re.search(
-            pattern,
-            page,
-            flags=re.I,
-        ):
-            page_signals.append(label)
-
-    article_type = (
-        citation_article_type
-        or dc_type
-        or ""
+    # 2. JSON-LD
+    abstract = abstract_from_jsonld(
+        page
     )
 
+    if abstract:
+        return {
+            "status": "OK",
+            "abstract": abstract,
+            "source": "JSON_LD",
+            "final_url": final_url,
+        }
+
+    # 3. HTML fallback
+    abstract = abstract_from_html_patterns(
+        page
+    )
+
+    if abstract:
+        return {
+            "status": "OK",
+            "abstract": abstract,
+            "source": "HTML_ABSTRACT_BLOCK",
+            "final_url": final_url,
+        }
+
     return {
-        "status": "OK",
+        "status": "NO_ABSTRACT_FOUND",
+        "abstract": "",
+        "source": "",
         "final_url": final_url,
-        "content_type": content_type,
-        "article_type": article_type,
-        "citation_article_type": citation_article_type,
-        "dc_type": dc_type,
-        "og_type": og_type,
-        "jsonld_types": jsonld_types,
-        "page_signals": page_signals,
     }
 
 
 # ============================================================
-# NATURE DIAGNOSTIC
+# PUBMED FALLBACK
 # ============================================================
 
-def diagnose_nature(journal, cutoff):
-    print()
-    print("=" * 78)
-    print("NATURE — ARTICLE TYPE DIAGNOSTIC")
-    print("=" * 78)
+def pubmed_abstract_by_doi(doi):
+    """
+    Uses NCBI E-utilities without an API key.
+
+    DOI -> PubMed ID -> abstract.
+    """
+
+    if not doi:
+        return ""
+
+    query = urllib.parse.quote(
+        f'"{doi}"[AID]'
+    )
+
+    search_url = (
+        "https://eutils.ncbi.nlm.nih.gov/"
+        "entrez/eutils/esearch.fcgi"
+        "?db=pubmed"
+        f"&term={query}"
+        "&retmode=json"
+    )
 
     try:
-        papers, content_type, final_url = fetch_feed(
-            journal
+        raw, _, _ = request_bytes(
+            search_url,
+            accept="application/json",
         )
 
-    except Exception as exc:
-        print(
-            "Nature feed FAILED:",
-            type(exc).__name__,
-            str(exc),
-        )
-        return
-
-    recent = []
-
-    for paper in papers:
-        dt = parse_date(
-            paper["date_raw"]
-        )
-
-        if dt and dt >= cutoff:
-            recent.append(paper)
-
-    print("Feed URL        :", final_url)
-    print("Content-Type    :", content_type)
-    print("Feed items      :", len(papers))
-    print("Recent 7d       :", len(recent))
-
-    research_like = [
-        paper
-        for paper in recent
-        if paper["doi"].lower().startswith(
-            "10.1038/s41586-"
-        )
-    ]
-
-    d41586 = [
-        paper
-        for paper in recent
-        if paper["doi"].lower().startswith(
-            "10.1038/d41586-"
-        )
-    ]
-
-    other = [
-        paper
-        for paper in recent
-        if paper not in research_like
-        and paper not in d41586
-    ]
-
-    print()
-    print(
-        "s41586 DOI candidates :",
-        len(research_like),
-    )
-    print(
-        "d41586 DOI candidates :",
-        len(d41586),
-    )
-    print(
-        "Other DOI candidates  :",
-        len(other),
-    )
-
-    print()
-    print("-" * 78)
-    print(
-        "CHECKING NATURE s41586 CANDIDATES AGAINST OFFICIAL PAGES"
-    )
-    print("-" * 78)
-
-    checked = 0
-
-    for number, paper in enumerate(
-        research_like,
-        start=1,
-    ):
-
-        if checked >= MAX_NATURE_PAGE_CHECKS:
-            print()
-            print(
-                "Nature page-check limit reached:",
-                MAX_NATURE_PAGE_CHECKS,
+        data = json.loads(
+            raw.decode(
+                "utf-8",
+                errors="replace",
             )
-            break
+        )
 
-        checked += 1
+        ids = (
+            data.get(
+                "esearchresult",
+                {}
+            )
+            .get(
+                "idlist",
+                []
+            )
+        )
 
-        metadata = detect_nature_page_type(
+        if not ids:
+            return ""
+
+        pmid = ids[0]
+
+        fetch_url = (
+            "https://eutils.ncbi.nlm.nih.gov/"
+            "entrez/eutils/efetch.fcgi"
+            "?db=pubmed"
+            f"&id={pmid}"
+            "&retmode=xml"
+        )
+
+        xml_bytes, _, _ = request_bytes(
+            fetch_url,
+            accept="application/xml,text/xml",
+        )
+
+        root = ET.fromstring(
+            xml_bytes
+        )
+
+        parts = []
+
+        for element in root.iter():
+
+            if local_name(
+                element.tag
+            ) != "abstracttext":
+                continue
+
+            text = clean(
+                "".join(
+                    element.itertext()
+                )
+            )
+
+            label = element.attrib.get(
+                "Label",
+                "",
+            ).strip()
+
+            if label and text:
+                parts.append(
+                    f"{label}: {text}"
+                )
+
+            elif text:
+                parts.append(text)
+
+        return clean(
+            " ".join(parts)
+        )
+
+    except Exception:
+        return ""
+
+
+# ============================================================
+# ARTICLE TYPE FILTER
+# ============================================================
+
+def nature_is_article(paper):
+    """
+    V2 established:
+    - s41586 is a useful candidate restriction
+    - final decision comes from official Nature page
+      citation_article_type == Article
+    """
+
+    if not paper["doi"].lower().startswith(
+        "10.1038/s41586-"
+    ):
+        return False, "", None
+
+    try:
+        page, _, final_url = request_text(
             paper["url"]
         )
 
-        print()
-        print(f"[N{number}]")
-        print("Title                  :", paper["title"])
-        print("Date                   :", paper["date"])
-        print(
-            "DOI                    :",
-            paper["doi"] or "Unavailable",
-        )
-        print("URL                    :", paper["url"])
-        print(
-            "Page request           :",
-            metadata["status"],
-        )
-        print(
-            "citation_article_type  :",
-            metadata.get(
-                "citation_article_type"
-            )
-            or "Unavailable",
-        )
-        print(
-            "dc.type                :",
-            metadata.get("dc_type")
-            or "Unavailable",
-        )
-        print(
-            "og:type                :",
-            metadata.get("og_type")
-            or "Unavailable",
-        )
-        print(
-            "JSON-LD @type          :",
-            " | ".join(
-                metadata.get(
-                    "jsonld_types",
-                    [],
-                )
-            )
-            or "Unavailable",
-        )
-        print(
-            "Page label signals     :",
-            " | ".join(
-                metadata.get(
-                    "page_signals",
-                    [],
-                )
-            )
-            or "Unavailable",
-        )
-
-        detected = metadata.get(
-            "article_type",
-            "",
-        )
-
-        if detected:
-            decision = (
-                "KEEP"
-                if detected.strip().lower()
-                == "article"
-                else "REVIEW"
-            )
-        else:
-            decision = "UNRESOLVED"
-
-        print(
-            "Diagnostic decision    :",
-            decision,
-        )
-
-    print()
-    print("-" * 78)
-    print("NATURE d41586 SAMPLE — FIRST 10")
-    print("-" * 78)
-
-    for number, paper in enumerate(
-        d41586[:10],
-        start=1,
-    ):
-        print()
-        print(f"[D{number}]")
-        print("Title :", paper["title"])
-        print("Date  :", paper["date"])
-        print("DOI   :", paper["doi"])
-        print("URL   :", paper["url"])
-
-
-# ============================================================
-# SCIENCE DIAGNOSTIC
-# ============================================================
-
-def diagnose_science(journal, cutoff):
-    print()
-    print("=" * 78)
-    print("SCIENCE — EXACT RSS TYPE FILTER")
-    print("=" * 78)
-
-    try:
-        papers, content_type, final_url = fetch_feed(
-            journal
-        )
-
     except Exception as exc:
-        print(
-            "Science feed FAILED:",
-            type(exc).__name__,
-            str(exc),
-        )
-        return
-
-    recent = []
-
-    for paper in papers:
-        dt = parse_date(
-            paper["date_raw"]
-        )
-
-        if dt and dt >= cutoff:
-            recent.append(paper)
-
-    keep = []
-    reject = []
-
-    for paper in recent:
-
-        types = [
-            value.strip()
-            for value
-            in paper["feed_type_metadata"]
-        ]
-
-        if "Research Article" in types:
-            keep.append(paper)
-        else:
-            reject.append(paper)
-
-    print("Feed URL        :", final_url)
-    print("Content-Type    :", content_type)
-    print("Feed items      :", len(papers))
-    print("Recent 7d       :", len(recent))
-    print("KEEP            :", len(keep))
-    print("REJECT          :", len(reject))
-
-    print()
-    print("-" * 78)
-    print("SCIENCE KEEP — RESEARCH ARTICLE")
-    print("-" * 78)
-
-    for number, paper in enumerate(
-        keep,
-        start=1,
-    ):
-
-        print()
-        print(f"[S{number}]")
-        print("Title    :", paper["title"])
-        print("Date     :", paper["date"])
-        print("DOI      :", paper["doi"])
-        print(
-            "RSS type :",
-            " | ".join(
-                paper["feed_type_metadata"]
+        return (
+            False,
+            (
+                f"PAGE_FAILED:"
+                f"{type(exc).__name__}"
             ),
+            None,
         )
-        print("Decision : KEEP")
 
-    print()
-    print("-" * 78)
-    print("SCIENCE REJECT TYPES")
-    print("-" * 78)
+    article_type = extract_meta_tag(
+        page,
+        "citation_article_type",
+    )
 
-    reject_types = {}
+    keep = (
+        article_type.strip().lower()
+        == "article"
+    )
 
-    for paper in reject:
-        label = (
-            " | ".join(
-                paper["feed_type_metadata"]
+    return (
+        keep,
+        article_type
+        or "Unavailable",
+        {
+            "page": page,
+            "final_url": final_url,
+        },
+    )
+
+
+def science_is_article(paper):
+    return (
+        "Research Article"
+        in paper["feed_types"]
+    )
+
+
+def cell_is_article(paper):
+    return (
+        "Article"
+        in paper["feed_types"]
+    )
+
+
+# ============================================================
+# ABSTRACT FOR ONE PAPER
+# ============================================================
+
+def get_abstract(paper, cached_page=None):
+    """
+    Priority:
+    1. Official article page
+    2. PubMed DOI lookup
+    3. RSS description, only if substantive
+    """
+
+    # Reuse Nature page already downloaded
+    if cached_page:
+
+        page = cached_page["page"]
+
+        abstract, source = abstract_from_meta(
+            page
+        )
+
+        if abstract:
+            return (
+                abstract,
+                "OFFICIAL_PAGE/"
+                + source,
             )
-            or "Unavailable"
+
+        abstract = abstract_from_jsonld(
+            page
         )
 
-        reject_types[label] = (
-            reject_types.get(label, 0)
-            + 1
+        if abstract:
+            return (
+                abstract,
+                "OFFICIAL_PAGE/JSON_LD",
+            )
+
+        abstract = abstract_from_html_patterns(
+            page
         )
 
-    for label, count in sorted(
-        reject_types.items()
-    ):
-        print(f"{label}: {count}")
+        if abstract:
+            return (
+                abstract,
+                "OFFICIAL_PAGE/"
+                "HTML_ABSTRACT_BLOCK",
+            )
+
+    else:
+        result = retrieve_page_abstract(
+            paper["url"]
+        )
+
+        if result["abstract"]:
+            return (
+                result["abstract"],
+                "OFFICIAL_PAGE/"
+                + result["source"],
+            )
+
+    # PubMed fallback
+    abstract = pubmed_abstract_by_doi(
+        paper["doi"]
+    )
+
+    if len(abstract) >= 100:
+        return (
+            abstract,
+            "PUBMED",
+        )
+
+    # RSS fallback
+    rss_text = clean(
+        paper["feed_description"]
+    )
+
+    if len(rss_text) >= 150:
+        return (
+            rss_text,
+            "RSS_DESCRIPTION",
+        )
+
+    return "", "UNAVAILABLE"
 
 
 # ============================================================
-# CELL DIAGNOSTIC
+# OUTPUT
 # ============================================================
 
-def diagnose_cell(journal, cutoff):
+def print_paper(number, paper, article_type, abstract, source):
+    print()
+    print("-" * 78)
+    print(
+        f"[{paper['journal']} {number}]"
+    )
+    print("-" * 78)
+
+    print(
+        "Title         :",
+        paper["title"],
+    )
+
+    print(
+        "Date          :",
+        paper["date"],
+    )
+
+    print(
+        "DOI           :",
+        paper["doi"]
+        or "Unavailable",
+    )
+
+    print(
+        "Article type  :",
+        article_type,
+    )
+
+    print(
+        "URL           :",
+        paper["url"]
+        or "Unavailable",
+    )
+
+    print(
+        "Abstract source:",
+        source,
+    )
+
+    print(
+        "Abstract chars :",
+        len(abstract),
+    )
+
+    print()
+    print("ABSTRACT")
+    print()
+
+    if abstract:
+        print(abstract)
+    else:
+        print(
+            "[NO SUBSTANTIVE ABSTRACT FOUND]"
+        )
+
+
+# ============================================================
+# JOURNAL PROCESSORS
+# ============================================================
+
+def process_nature(journal):
     print()
     print("=" * 78)
-    print("CELL — FULL FEED COVERAGE DIAGNOSTIC")
+    print("NATURE — TARGET ARTICLES + ABSTRACTS")
     print("=" * 78)
 
-    try:
-        papers, content_type, final_url = fetch_feed(
-            journal
-        )
+    papers = fetch_feed(
+        journal
+    )
 
-    except Exception as exc:
-        print(
-            "Cell feed FAILED:",
-            type(exc).__name__,
-            str(exc),
-        )
-        return
-
-    print("Feed URL        :", final_url)
-    print("Content-Type    :", content_type)
-    print("Total feed items:", len(papers))
-
-    dated = []
+    targets = []
 
     for paper in papers:
-        dt = parse_date(
-            paper["date_raw"]
+
+        if len(targets) >= MAX_TARGETS_PER_JOURNAL:
+            break
+
+        keep, article_type, cached_page = (
+            nature_is_article(
+                paper
+            )
         )
 
-        if dt:
-            dated.append(
-                (
-                    dt,
-                    paper,
-                )
-            )
+        if not keep:
+            continue
 
-    dated.sort(
-        key=lambda item: item[0],
+        abstract, source = get_abstract(
+            paper,
+            cached_page=cached_page,
+        )
+
+        targets.append(
+            (
+                paper,
+                article_type,
+                abstract,
+                source,
+            )
+        )
+
+    for number, item in enumerate(
+        targets,
+        start=1,
+    ):
+        print_paper(
+            number,
+            *item,
+        )
+
+    return targets
+
+
+def process_science(journal):
+    print()
+    print("=" * 78)
+    print("SCIENCE — TARGET ARTICLES + ABSTRACTS")
+    print("=" * 78)
+
+    papers = fetch_feed(
+        journal
+    )
+
+    targets = []
+
+    for paper in papers:
+
+        if len(targets) >= MAX_TARGETS_PER_JOURNAL:
+            break
+
+        if not science_is_article(
+            paper
+        ):
+            continue
+
+        abstract, source = get_abstract(
+            paper
+        )
+
+        targets.append(
+            (
+                paper,
+                "Research Article",
+                abstract,
+                source,
+            )
+        )
+
+    for number, item in enumerate(
+        targets,
+        start=1,
+    ):
+        print_paper(
+            number,
+            *item,
+        )
+
+    return targets
+
+
+def process_cell(journal):
+    print()
+    print("=" * 78)
+    print("CELL — TARGET ARTICLES + ABSTRACTS")
+    print("=" * 78)
+
+    papers = fetch_feed(
+        journal
+    )
+
+    targets = []
+
+    # Cell RSS ordering is not necessarily publication-date ordering.
+    # Filter all Articles first, then sort by parsed date.
+
+    article_papers = [
+        paper
+        for paper in papers
+        if cell_is_article(
+            paper
+        )
+    ]
+
+    article_papers.sort(
+        key=lambda paper: (
+            parse_date(
+                paper["date_raw"]
+            )
+            or datetime.min.replace(
+                tzinfo=timezone.utc
+            )
+        ),
         reverse=True,
     )
 
-    if dated:
-        newest = dated[0][0]
-        oldest = dated[-1][0]
+    for paper in article_papers[
+        :MAX_TARGETS_PER_JOURNAL
+    ]:
 
-        print(
-            "Newest feed date:",
-            newest.isoformat(),
-        )
-        print(
-            "Oldest feed date:",
-            oldest.isoformat(),
+        abstract, source = get_abstract(
+            paper
         )
 
-    recent = [
-        paper
-        for dt, paper in dated
-        if dt >= cutoff
-    ]
+        targets.append(
+            (
+                paper,
+                "Article",
+                abstract,
+                source,
+            )
+        )
 
-    print(
-        "Recent <= 7 days:",
-        len(recent),
-    )
-
-    print()
-    print("-" * 78)
-    print("ALL CELL FEED ITEMS")
-    print("-" * 78)
-
-    for number, paper in enumerate(
-        papers,
+    for number, item in enumerate(
+        targets,
         start=1,
     ):
-
-        dt = parse_date(
-            paper["date_raw"]
+        print_paper(
+            number,
+            *item,
         )
 
-        in_window = (
-            bool(dt and dt >= cutoff)
-        )
+    return targets
 
-        print()
-        print(f"[C{number}]")
-        print("Title        :", paper["title"])
-        print("Raw date     :", paper["date_raw"])
-        print("Parsed date  :", paper["date"])
-        print(
-            "Within 7 days:",
-            "YES" if in_window else "NO",
-        )
-        print(
-            "DOI          :",
-            paper["doi"]
-            or "Unavailable",
-        )
-        print(
-            "Type metadata:",
-            " | ".join(
-                paper["feed_type_metadata"]
-            )
-            if paper["feed_type_metadata"]
-            else "Unavailable",
-        )
-        print(
-            "URL          :",
-            paper["url"]
-            or "Unavailable",
-        )
 
-    print()
-    print("-" * 78)
-    print("CELL TYPE SUMMARY")
-    print("-" * 78)
+# ============================================================
+# SUMMARY
+# ============================================================
 
-    type_counts = {}
+def summarize(name, targets):
+    total = len(targets)
 
-    for paper in papers:
+    with_abstract = sum(
+        1
+        for _, _, abstract, _
+        in targets
+        if len(abstract) >= 100
+    )
 
-        label = (
-            " | ".join(
-                paper["feed_type_metadata"]
-            )
-            or "Unavailable"
-        )
+    sources = {}
 
-        type_counts[label] = (
-            type_counts.get(label, 0)
+    for _, _, _, source in targets:
+        sources[source] = (
+            sources.get(source, 0)
             + 1
         )
 
-    for label, count in sorted(
-        type_counts.items()
-    ):
-        print(f"{label}: {count}")
-
     print()
-    print("Official current issue page:")
-    print(journal["landing"])
+    print(name)
+    print(
+        "  Target papers :",
+        total,
+    )
+    print(
+        "  Abstract OK   :",
+        with_abstract,
+    )
+    print(
+        "  Missing       :",
+        total - with_abstract,
+    )
+
+    print(
+        "  Sources       :",
+        sources,
+    )
 
 
 # ============================================================
@@ -1015,7 +1174,7 @@ def diagnose_cell(journal, cutoff):
 def main():
     print("=" * 78)
     print(
-        "CNS ARTICLE AGENT V2 — TYPE & COVERAGE DIAGNOSTIC"
+        "CNS ARTICLE AGENT V3 — ABSTRACT RETRIEVAL TEST"
     )
     print("=" * 78)
 
@@ -1025,59 +1184,78 @@ def main():
     print("Dedup      : OFF")
 
     print()
-    print("Target publication types:")
-    print("  Nature  -> Article")
-    print("  Science -> Research Article")
-    print("  Cell    -> Article")
-
-    now = datetime.now(timezone.utc)
-    cutoff = now - timedelta(
-        days=SEARCH_DAYS
+    print(
+        "Maximum target papers per journal:",
+        MAX_TARGETS_PER_JOURNAL,
     )
 
     print()
+    print("Filtering rules:")
     print(
-        "Current UTC:",
-        now.isoformat(),
+        "  Nature  -> official page "
+        "citation_article_type == Article"
     )
     print(
-        "Cutoff UTC :",
-        cutoff.isoformat(),
+        "  Science -> RSS type == Research Article"
+    )
+    print(
+        "  Cell    -> RSS type == Article"
     )
 
-    journal_map = {
-        journal["name"]: journal
-        for journal in JOURNALS
-    }
-
-    diagnose_nature(
-        journal_map["Nature"],
-        cutoff,
+    nature = next(
+        x
+        for x in JOURNALS
+        if x["name"] == "Nature"
     )
 
-    diagnose_science(
-        journal_map["Science"],
-        cutoff,
+    science = next(
+        x
+        for x in JOURNALS
+        if x["name"] == "Science"
     )
 
-    diagnose_cell(
-        journal_map["Cell"],
-        cutoff,
+    cell = next(
+        x
+        for x in JOURNALS
+        if x["name"] == "Cell"
+    )
+
+    nature_targets = process_nature(
+        nature
+    )
+
+    science_targets = process_science(
+        science
+    )
+
+    cell_targets = process_cell(
+        cell
     )
 
     print()
     print("=" * 78)
-    print("V2 FINISHED")
+    print("V3 SUMMARY")
     print("=" * 78)
 
+    summarize(
+        "Nature",
+        nature_targets,
+    )
+
+    summarize(
+        "Science",
+        science_targets,
+    )
+
+    summarize(
+        "Cell",
+        cell_targets,
+    )
+
     print()
-    print(
-        "Next step:"
-    )
-    print(
-        "Use this run to choose the final reliable "
-        "Article-type rule for Nature and Cell."
-    )
+    print("=" * 78)
+    print("V3 FINISHED")
+    print("=" * 78)
 
 
 if __name__ == "__main__":
