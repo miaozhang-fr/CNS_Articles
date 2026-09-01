@@ -2,22 +2,25 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V4 — OpenAI Analysis Test
+CNS Article Agent V5 — Email Test
 
-Targets:
-Nature  -> Article
-Science -> Research Article
-Cell    -> Article
+Pipeline:
+RSS
+ -> exact article-type filtering
+ -> scientific-text retrieval
+ -> OpenAI analysis
+ -> HTML email
 
-Purpose:
-- Retrieve scientific text
-- Select 6 diagnostic papers
-- Ask OpenAI for structured scientific analysis
-- Test hallucination resistance on LOW evidence
+TEST MODE:
+- Nature:  1 HIGH paper
+- Science: 1 HIGH paper
+- Cell:    1 HIGH paper
 
-NO EMAIL
-NO DEDUP
-NO SCHEDULE
+Email: ON
+OpenAI: ON
+Dedup: OFF
+State: OFF
+Schedule: OFF
 """
 
 import os
@@ -25,11 +28,13 @@ import re
 import html
 import json
 import ssl
+import smtplib
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
 from datetime import datetime, timezone
+from email.message import EmailMessage
 from email.utils import parsedate_to_datetime
 
 
@@ -42,9 +47,21 @@ MAX_FEED_ITEMS = 500
 
 OPENAI_MODEL = "gpt-5.6-luna"
 
+# ============================================================
+# IMPORTANT — CHANGE THESE TWO
+# ============================================================
+
+EMAIL_FROM = "YOUR_GMAIL@gmail.com"
+EMAIL_TO = "YOUR_GMAIL@gmail.com"
+
+# ============================================================
+
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 465
+
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/4.0; +https://github.com/)"
+    "(compatible; CNSArticleAgent/5.0; +https://github.com/)"
 )
 
 JOURNALS = [
@@ -77,13 +94,10 @@ JOURNALS = [
 # ============================================================
 
 def clean(value):
-
     if not value:
         return ""
 
-    value = html.unescape(
-        str(value)
-    )
+    value = html.unescape(str(value))
 
     value = re.sub(
         r"<!\[CDATA\[|\]\]>",
@@ -107,99 +121,60 @@ def clean(value):
 
 
 def local_name(tag):
-
-    return tag.split(
-        "}",
-        1,
-    )[-1].lower()
+    return tag.split("}", 1)[-1].lower()
 
 
 def child_text(element, names):
-
-    names = {
-        name.lower()
-        for name in names
-    }
+    names = {x.lower() for x in names}
 
     for child in list(element):
-
-        if local_name(
-            child.tag
-        ) in names:
-
-            text = "".join(
-                child.itertext()
+        if local_name(child.tag) in names:
+            text = clean(
+                "".join(child.itertext())
             )
-
-            if text.strip():
-                return clean(text)
+            if text:
+                return text
 
     return ""
 
 
-def descendant_texts(
-    element,
-    names,
-):
-
-    names = {
-        name.lower()
-        for name in names
-    }
-
+def descendant_texts(element, names):
+    names = {x.lower() for x in names}
     values = []
 
     for child in element.iter():
-
-        if local_name(
-            child.tag
-        ) in names:
-
+        if local_name(child.tag) in names:
             text = clean(
-                "".join(
-                    child.itertext()
-                )
+                "".join(child.itertext())
             )
 
-            if (
-                text
-                and text not in values
-            ):
+            if text and text not in values:
                 values.append(text)
 
     return values
 
 
 def extract_link(element):
-
     for child in element.iter():
-
-        if local_name(
-            child.tag
-        ) != "link":
+        if local_name(child.tag) != "link":
             continue
 
-        href = child.attrib.get(
-            "href"
-        )
+        href = child.attrib.get("href")
 
         if href:
             return href.strip()
 
-        text = "".join(
-            child.itertext()
-        ).strip()
+        text = clean(
+            "".join(child.itertext())
+        )
 
-        if text.startswith(
-            "http"
-        ):
+        if text.startswith("http"):
             return text
 
     return ""
 
 
 def normalize_doi(value):
-
     value = clean(value)
 
     value = re.sub(
@@ -225,18 +200,12 @@ def normalize_doi(value):
     if not match:
         return ""
 
-    return match.group(0).rstrip(
-        ".,;)"
-    )
+    return match.group(0).rstrip(".,;)")
 
 
 def find_doi(*values):
-
     for value in values:
-
-        doi = normalize_doi(
-            value
-        )
+        doi = normalize_doi(value)
 
         if doi:
             return doi
@@ -245,24 +214,19 @@ def find_doi(*values):
 
 
 # ============================================================
-# DATES
+# DATE
 # ============================================================
 
 def parse_date(value):
-
     if not value:
         return None
 
     value = clean(value)
 
     try:
-
-        dt = parsedate_to_datetime(
-            value
-        )
+        dt = parsedate_to_datetime(value)
 
         if dt:
-
             if not dt.tzinfo:
                 dt = dt.replace(
                     tzinfo=timezone.utc
@@ -276,7 +240,6 @@ def parse_date(value):
         pass
 
     try:
-
         dt = datetime.fromisoformat(
             value.replace(
                 "Z",
@@ -300,7 +263,6 @@ def parse_date(value):
 
 
 def format_date(value):
-
     dt = parse_date(value)
 
     if dt:
@@ -313,13 +275,8 @@ def format_date(value):
 # HTTP
 # ============================================================
 
-def request_bytes(
-    url,
-    accept=None,
-):
-
+def request_bytes(url, accept=None):
     if accept is None:
-
         accept = (
             "application/rss+xml,"
             "application/xml,"
@@ -332,9 +289,7 @@ def request_bytes(
         headers={
             "User-Agent": UA,
             "Accept": accept,
-            "Accept-Language": (
-                "en-US,en;q=0.9"
-            ),
+            "Accept-Language": "en-US,en;q=0.9",
         },
     )
 
@@ -345,7 +300,6 @@ def request_bytes(
         timeout=TIMEOUT,
         context=context,
     ) as response:
-
         return (
             response.read(),
             response.headers.get(
@@ -357,7 +311,6 @@ def request_bytes(
 
 
 def request_text(url):
-
     raw, content_type, final_url = (
         request_bytes(
             url,
@@ -382,40 +335,25 @@ def request_text(url):
 # RSS
 # ============================================================
 
-def parse_feed(
-    xml_bytes,
-    journal,
-):
-
-    root = ET.fromstring(
-        xml_bytes
-    )
+def parse_feed(xml_bytes, journal):
+    root = ET.fromstring(xml_bytes)
 
     entries = [
         element
         for element in root.iter()
-        if local_name(
-            element.tag
-        ) in (
-            "item",
-            "entry",
-        )
+        if local_name(element.tag)
+        in ("item", "entry")
     ]
 
     papers = []
 
-    for entry in entries[
-        :MAX_FEED_ITEMS
-    ]:
-
+    for entry in entries[:MAX_FEED_ITEMS]:
         title = child_text(
             entry,
             ["title"],
         )
 
-        link = extract_link(
-            entry
-        )
+        link = extract_link(entry)
 
         date_raw = child_text(
             entry,
@@ -438,41 +376,33 @@ def parse_feed(
             ],
         )
 
-        identifiers = (
-            descendant_texts(
-                entry,
-                [
-                    "identifier",
-                    "doi",
-                ],
-            )
+        identifiers = descendant_texts(
+            entry,
+            [
+                "identifier",
+                "doi",
+            ],
         )
 
-        categories = (
-            descendant_texts(
-                entry,
-                [
-                    "category",
-                    "type",
-                    "section",
-                    "subject",
-                ],
-            )
+        categories = descendant_texts(
+            entry,
+            [
+                "category",
+                "type",
+                "section",
+                "subject",
+            ],
         )
 
         doi = find_doi(
-            " ".join(
-                identifiers
-            ),
+            " ".join(identifiers),
             link,
             description,
         )
 
         papers.append(
             {
-                "journal": (
-                    journal["name"]
-                ),
+                "journal": journal["name"],
                 "title": title,
                 "url": link,
                 "doi": doi,
@@ -480,12 +410,8 @@ def parse_feed(
                 "date": format_date(
                     date_raw
                 ),
-                "feed_types": (
-                    categories
-                ),
-                "feed_description": (
-                    description
-                ),
+                "feed_types": categories,
+                "feed_description": description,
             }
         )
 
@@ -493,7 +419,6 @@ def parse_feed(
 
 
 def fetch_feed(journal):
-
     raw, _, _ = request_bytes(
         journal["feed"]
     )
@@ -505,14 +430,10 @@ def fetch_feed(journal):
 
 
 # ============================================================
-# HTML METADATA
+# HTML META
 # ============================================================
 
-def extract_meta_tag(
-    page,
-    key,
-):
-
+def extract_meta_tag(page, key):
     patterns = [
         (
             rf'<meta[^>]+'
@@ -537,7 +458,6 @@ def extract_meta_tag(
     ]
 
     for pattern in patterns:
-
         match = re.search(
             pattern,
             page,
@@ -545,7 +465,6 @@ def extract_meta_tag(
         )
 
         if match:
-
             return clean(
                 match.group(1)
             )
@@ -554,7 +473,6 @@ def extract_meta_tag(
 
 
 def official_abstract(page):
-
     candidates = []
 
     for key in [
@@ -564,14 +482,12 @@ def official_abstract(page):
         "description",
         "og:description",
     ]:
-
         text = extract_meta_tag(
             page,
             key,
         )
 
         if len(text) >= 150:
-
             candidates.append(
                 (
                     len(text),
@@ -581,16 +497,11 @@ def official_abstract(page):
             )
 
     if not candidates:
-
         return "", ""
 
-    candidates.sort(
-        reverse=True
-    )
+    candidates.sort(reverse=True)
 
-    _, key, text = (
-        candidates[0]
-    )
+    _, key, text = candidates[0]
 
     return (
         text,
@@ -603,7 +514,6 @@ def official_abstract(page):
 # ============================================================
 
 def pubmed_abstract_by_doi(doi):
-
     if not doi:
         return ""
 
@@ -620,7 +530,6 @@ def pubmed_abstract_by_doi(doi):
     )
 
     try:
-
         raw, _, _ = request_bytes(
             search_url,
             accept="application/json",
@@ -655,14 +564,12 @@ def pubmed_abstract_by_doi(doi):
             "&retmode=xml"
         )
 
-        xml_bytes, _, _ = (
-            request_bytes(
-                fetch_url,
-                accept=(
-                    "application/xml,"
-                    "text/xml"
-                ),
-            )
+        xml_bytes, _, _ = request_bytes(
+            fetch_url,
+            accept=(
+                "application/xml,"
+                "text/xml"
+            ),
         )
 
         root = ET.fromstring(
@@ -672,11 +579,8 @@ def pubmed_abstract_by_doi(doi):
         parts = []
 
         for element in root.iter():
-
             if (
-                local_name(
-                    element.tag
-                )
+                local_name(element.tag)
                 != "abstracttext"
             ):
                 continue
@@ -695,7 +599,6 @@ def pubmed_abstract_by_doi(doi):
         )
 
     except Exception:
-
         return ""
 
 
@@ -704,7 +607,6 @@ def pubmed_abstract_by_doi(doi):
 # ============================================================
 
 def crossref_abstract_by_doi(doi):
-
     if not doi:
         return ""
 
@@ -720,7 +622,6 @@ def crossref_abstract_by_doi(doi):
     )
 
     try:
-
         raw, _, _ = request_bytes(
             url,
             accept="application/json",
@@ -744,52 +645,38 @@ def crossref_abstract_by_doi(doi):
             )
         )
 
-        return clean(
-            abstract
-        )
+        return clean(abstract)
 
     except Exception:
-
         return ""
 
 
 # ============================================================
-# TYPE FILTERING
+# ARTICLE FILTERING
 # ============================================================
 
 def normalized_types(paper):
-
     return [
         clean(value).lower()
-        for value
-        in paper["feed_types"]
+        for value in paper["feed_types"]
     ]
 
 
 def science_is_article(paper):
-
     return (
         "research article"
-        in normalized_types(
-            paper
-        )
+        in normalized_types(paper)
     )
 
 
 def cell_is_article(paper):
-
     return (
         "article"
-        in normalized_types(
-            paper
-        )
+        in normalized_types(paper)
     )
 
 
-def nature_article(
-    paper
-):
-
+def nature_article(paper):
     if not (
         paper["doi"]
         .lower()
@@ -797,55 +684,39 @@ def nature_article(
             "10.1038/s41586-"
         )
     ):
-
         return None
 
     try:
-
-        page, _, _ = (
-            request_text(
-                paper["url"]
-            )
+        page, _, _ = request_text(
+            paper["url"]
         )
 
     except Exception:
-
         return None
 
-    article_type = (
-        extract_meta_tag(
-            page,
-            "citation_article_type",
-        )
+    article_type = extract_meta_tag(
+        page,
+        "citation_article_type",
     )
 
     if (
-        article_type
-        .strip()
-        .lower()
+        article_type.strip().lower()
         != "article"
     ):
-
         return None
 
-    text, source = (
-        official_abstract(
-            page
-        )
+    text, source = official_abstract(
+        page
     )
 
     if not text:
         return None
 
-    result = dict(
-        paper
-    )
+    result = dict(paper)
 
     result.update(
         {
-            "article_type": (
-                "Article"
-            ),
+            "article_type": "Article",
             "scientific_text": text,
             "source": source,
             "quality": "HIGH",
@@ -856,46 +727,30 @@ def nature_article(
 
 
 # ============================================================
-# SCIENCE / CELL SCIENTIFIC TEXT
+# SCIENCE / CELL ENRICHMENT
 # ============================================================
 
 def enrich_non_nature(
     paper,
     article_type,
 ):
-
-    # ------------------------------------
-    # Official page
-    # ------------------------------------
-
+    # Official publisher page
     try:
-
-        page, _, _ = (
-            request_text(
-                paper["url"]
-            )
+        page, _, _ = request_text(
+            paper["url"]
         )
 
-        text, source = (
-            official_abstract(
-                page
-            )
+        text, source = official_abstract(
+            page
         )
 
         if text:
-
-            result = dict(
-                paper
-            )
+            result = dict(paper)
 
             result.update(
                 {
-                    "article_type": (
-                        article_type
-                    ),
-                    "scientific_text": (
-                        text
-                    ),
+                    "article_type": article_type,
+                    "scientific_text": text,
                     "source": source,
                     "quality": "HIGH",
                 }
@@ -906,25 +761,17 @@ def enrich_non_nature(
     except Exception:
         pass
 
-    # ------------------------------------
     # PubMed
-    # ------------------------------------
-
     text = pubmed_abstract_by_doi(
         paper["doi"]
     )
 
     if len(text) >= 100:
-
-        result = dict(
-            paper
-        )
+        result = dict(paper)
 
         result.update(
             {
-                "article_type": (
-                    article_type
-                ),
+                "article_type": article_type,
                 "scientific_text": text,
                 "source": "PUBMED",
                 "quality": "HIGH",
@@ -933,25 +780,17 @@ def enrich_non_nature(
 
         return result
 
-    # ------------------------------------
     # Crossref
-    # ------------------------------------
-
     text = crossref_abstract_by_doi(
         paper["doi"]
     )
 
     if len(text) >= 100:
-
-        result = dict(
-            paper
-        )
+        result = dict(paper)
 
         result.update(
             {
-                "article_type": (
-                    article_type
-                ),
+                "article_type": article_type,
                 "scientific_text": text,
                 "source": "CROSSREF",
                 "quality": "HIGH",
@@ -960,14 +799,9 @@ def enrich_non_nature(
 
         return result
 
-    # ------------------------------------
     # RSS
-    # ------------------------------------
-
     text = clean(
-        paper[
-            "feed_description"
-        ]
+        paper["feed_description"]
     )
 
     if len(text) >= 500:
@@ -979,15 +813,11 @@ def enrich_non_nature(
     else:
         quality = "NONE"
 
-    result = dict(
-        paper
-    )
+    result = dict(paper)
 
     result.update(
         {
-            "article_type": (
-                article_type
-            ),
+            "article_type": article_type,
             "scientific_text": text,
             "source": (
                 "RSS_DESCRIPTION"
@@ -1002,48 +832,36 @@ def enrich_non_nature(
 
 
 # ============================================================
-# BUILD ARTICLE POOLS
+# SELECT 3 TEST PAPERS
 # ============================================================
 
-def get_nature_articles():
+def get_test_papers():
+    selected = []
 
-    journal = JOURNALS[0]
-
-    papers = fetch_feed(
-        journal
+    # Nature
+    nature_papers = fetch_feed(
+        JOURNALS[0]
     )
 
-    results = []
-
-    for paper in papers:
-
+    for paper in nature_papers:
         result = nature_article(
             paper
         )
 
-        if result:
-            results.append(
-                result
-            )
-
-        if len(results) >= 5:
+        if (
+            result
+            and result["quality"]
+            == "HIGH"
+        ):
+            selected.append(result)
             break
 
-    return results
-
-
-def get_science_articles():
-
-    journal = JOURNALS[1]
-
-    papers = fetch_feed(
-        journal
+    # Science
+    science_papers = fetch_feed(
+        JOURNALS[1]
     )
 
-    results = []
-
-    for paper in papers:
-
+    for paper in science_papers:
         if not science_is_article(
             paper
         ):
@@ -1054,33 +872,22 @@ def get_science_articles():
             "Research Article",
         )
 
-        results.append(
-            result
-        )
-
-        if len(results) >= 5:
+        if result["quality"] == "HIGH":
+            selected.append(result)
             break
 
-    return results
-
-
-def get_cell_articles():
-
-    journal = JOURNALS[2]
-
-    papers = fetch_feed(
-        journal
+    # Cell
+    cell_papers = fetch_feed(
+        JOURNALS[2]
     )
 
-    article_papers = [
+    cell_papers = [
         paper
-        for paper in papers
-        if cell_is_article(
-            paper
-        )
+        for paper in cell_papers
+        if cell_is_article(paper)
     ]
 
-    article_papers.sort(
+    cell_papers.sort(
         key=lambda paper: (
             parse_date(
                 paper["date_raw"]
@@ -1092,73 +899,15 @@ def get_cell_articles():
         reverse=True,
     )
 
-    return [
-        enrich_non_nature(
+    for paper in cell_papers:
+        result = enrich_non_nature(
             paper,
             "Article",
         )
-        for paper
-        in article_papers[:10]
-    ]
 
-
-# ============================================================
-# SELECT SIX TEST PAPERS
-# ============================================================
-
-def select_test_articles(
-    nature,
-    science,
-    cell,
-):
-
-    selected = []
-
-    # Nature: first 2 HIGH
-    nature_high = [
-        paper
-        for paper in nature
-        if paper["quality"] == "HIGH"
-    ]
-
-    selected.extend(
-        nature_high[:2]
-    )
-
-    # Science: first 2 HIGH
-    science_high = [
-        paper
-        for paper in science
-        if paper["quality"] == "HIGH"
-    ]
-
-    selected.extend(
-        science_high[:2]
-    )
-
-    # Cell: one HIGH
-    cell_high = [
-        paper
-        for paper in cell
-        if paper["quality"] == "HIGH"
-    ]
-
-    if cell_high:
-        selected.append(
-            cell_high[0]
-        )
-
-    # Cell: one LOW
-    cell_low = [
-        paper
-        for paper in cell
-        if paper["quality"] == "LOW"
-    ]
-
-    if cell_low:
-        selected.append(
-            cell_low[0]
-        )
+        if result["quality"] == "HIGH":
+            selected.append(result)
+            break
 
     return selected
 
@@ -1167,106 +916,69 @@ def select_test_articles(
 # OPENAI
 # ============================================================
 
-def build_analysis_prompt(
-    paper
-):
-
+def build_analysis_prompt(paper):
     evidence_warning = ""
 
-    if paper["quality"] == "LOW":
-
+    if paper["quality"] in (
+        "LOW",
+        "MEDIUM",
+    ):
         evidence_warning = """
-IMPORTANT:
-The supplied source is LOW-EVIDENCE scientific text.
-It may be only a short publisher summary.
-
-You MUST be especially conservative.
-Do not reconstruct experimental procedures.
-Do not infer likely methods from the topic.
-If methods are not explicitly stated, report:
-"Not stated in available source."
+The supplied source is incomplete.
+Be especially conservative.
+Do not reconstruct methods that are not explicitly stated.
 """
 
     return f"""
 You are analyzing a scientific research paper.
 
-Your job is to extract and interpret ONLY what is supported
-by the supplied scientific text.
+Analyze ONLY the supplied scientific text.
 
-============================================================
-STRICT EVIDENCE RULES
-============================================================
+STRICT RULES:
 
 1. Never invent information.
-
-2. Never infer a method merely because it would normally
-   be used in this research field.
-
-3. Never infer methods from the paper title.
-
-4. Never infer experimental design from general scientific
-   knowledge.
-
-5. A method may be reported ONLY when it is explicitly
-   stated or directly described in the supplied scientific
-   text.
-
-6. If the available source does not state a method, write:
-
+2. Never infer methods from the title.
+3. Never infer methods from general scientific knowledge.
+4. Report a method only if explicitly supported by the text.
+5. If a method is not stated, write:
    "Not stated in available source."
-
-7. Distinguish clearly between:
-   - what the authors did,
-   - what they found,
-   - what you interpret as the conceptual significance.
-
-8. Do not claim methodological innovation unless the supplied
-   source explicitly supports that interpretation.
-
-9. Do not exaggerate novelty.
-
-10. Evidence limitations are mandatory.
+6. Do not exaggerate novelty.
+7. Do not automatically treat a named framework or technique
+   as a methodological innovation.
+8. Report methodological innovation only when the supplied
+   text supports a specific new methodological capability,
+   design, platform, workflow, or technical advance.
+9. Evidence limitations are mandatory.
 
 {evidence_warning}
 
-============================================================
-PAPER METADATA
-============================================================
-
-Journal:
+JOURNAL:
 {paper["journal"]}
 
-Title:
+TITLE:
 {paper["title"]}
 
 DOI:
 {paper["doi"]}
 
-Publication date:
-{paper["date"]}
-
-Article type:
+ARTICLE TYPE:
 {paper["article_type"]}
 
-Scientific-text source:
+SOURCE:
 {paper["source"]}
 
-Evidence quality:
+EVIDENCE QUALITY:
 {paper["quality"]}
 
-============================================================
-SCIENTIFIC TEXT
-============================================================
+SCIENTIFIC TEXT:
 
 {paper["scientific_text"]}
 
-============================================================
-OUTPUT
-============================================================
-
 Return ONLY valid JSON.
 
-Use exactly this structure:
+Write the analysis in Chinese.
+
+Use this exact structure:
 
 {{
   "research_question": "",
@@ -1277,132 +989,100 @@ Use exactly this structure:
       "purpose": ""
     }}
   ],
-  "key_findings": [
-    ""
-  ],
+  "key_findings": [""],
   "conceptual_innovation": "",
   "methodological_innovation": "",
   "why_it_matters": "",
   "evidence_limitations": ""
 }}
-
-Write the scientific analysis in Chinese.
-
-Keep technical method names, gene names, proteins,
-algorithms, instruments, datasets and specialist terminology
-in their standard English form where appropriate.
-
-For "methods":
-- include only explicitly supported methods;
-- give the purpose of each method;
-- if no method is explicitly supported, return:
-
-[
-  {{
-    "method": "Not stated in available source.",
-    "purpose": "Not stated in available source."
-  }}
-]
-
-For methodological_innovation:
-if not explicitly supported, write:
-"Not stated in available source."
-
-Return JSON only.
 """.strip()
 
 
-def call_openai(
-    paper
-):
-
+def call_openai(paper):
     api_key = os.environ.get(
         "OPENAI_API_KEY",
         "",
     ).strip()
 
     if not api_key:
-
         raise RuntimeError(
             "OPENAI_API_KEY is missing."
         )
 
-    prompt = build_analysis_prompt(
-        paper
-    )
+    schema = {
+        "type": "object",
+        "properties": {
+            "research_question": {
+                "type": "string"
+            },
+            "study_system": {
+                "type": "string"
+            },
+            "methods": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "method": {
+                            "type": "string"
+                        },
+                        "purpose": {
+                            "type": "string"
+                        },
+                    },
+                    "required": [
+                        "method",
+                        "purpose",
+                    ],
+                    "additionalProperties": False,
+                },
+            },
+            "key_findings": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+            },
+            "conceptual_innovation": {
+                "type": "string"
+            },
+            "methodological_innovation": {
+                "type": "string"
+            },
+            "why_it_matters": {
+                "type": "string"
+            },
+            "evidence_limitations": {
+                "type": "string"
+            },
+        },
+        "required": [
+            "research_question",
+            "study_system",
+            "methods",
+            "key_findings",
+            "conceptual_innovation",
+            "methodological_innovation",
+            "why_it_matters",
+            "evidence_limitations",
+        ],
+        "additionalProperties": False,
+    }
 
     payload = {
         "model": OPENAI_MODEL,
-        "input": prompt,
+        "input": build_analysis_prompt(
+            paper
+        ),
         "reasoning": {
             "effort": "low"
         },
         "text": {
             "format": {
                 "type": "json_schema",
-                "name": (
-                    "scientific_analysis"
-                ),
+                "name": "scientific_analysis",
                 "strict": True,
-                "schema": {
-                    "type": "object",
-                    "properties": {
-                        "research_question": {
-                            "type": "string"
-                        },
-                        "study_system": {
-                            "type": "string"
-                        },
-                        "methods": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "method": {
-                                        "type": "string"
-                                    },
-                                    "purpose": {
-                                        "type": "string"
-                                    },
-                                },
-                                "required": [
-                                    "method",
-                                    "purpose",
-                                ],
-                                "additionalProperties": False,
-                            },
-                        },
-                        "key_findings": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                        },
-                        "conceptual_innovation": {
-                            "type": "string"
-                        },
-                        "methodological_innovation": {
-                            "type": "string"
-                        },
-                        "why_it_matters": {
-                            "type": "string"
-                        },
-                        "evidence_limitations": {
-                            "type": "string"
-                        },
-                    },
-                    "required": [
-                        "research_question",
-                        "study_system",
-                        "methods",
-                        "key_findings",
-                        "conceptual_innovation",
-                        "methodological_innovation",
-                        "why_it_matters",
-                        "evidence_limitations",
-                    ],
-                    "additionalProperties": False,
-                },
+                "schema": schema,
             }
         },
     }
@@ -1411,13 +1091,10 @@ def call_openai(
         "https://api.openai.com/v1/responses",
         data=json.dumps(
             payload
-        ).encode(
-            "utf-8"
-        ),
+        ).encode("utf-8"),
         headers={
             "Authorization": (
-                "Bearer "
-                + api_key
+                "Bearer " + api_key
             ),
             "Content-Type": (
                 "application/json"
@@ -1433,37 +1110,29 @@ def call_openai(
         timeout=120,
         context=context,
     ) as response:
-
         raw = response.read()
 
     data = json.loads(
-        raw.decode(
-            "utf-8"
-        )
+        raw.decode("utf-8")
     )
 
-    # Responses API output parsing
     output_text = ""
 
     for item in data.get(
         "output",
         [],
     ):
-
-        if item.get(
-            "type"
-        ) != "message":
+        if item.get("type") != "message":
             continue
 
         for content in item.get(
             "content",
             [],
         ):
-
-            if content.get(
-                "type"
-            ) == "output_text":
-
+            if (
+                content.get("type")
+                == "output_text"
+            ):
                 output_text += (
                     content.get(
                         "text",
@@ -1472,168 +1141,274 @@ def call_openai(
                 )
 
     if not output_text:
-
         raise RuntimeError(
             "OpenAI returned no output_text."
         )
 
-    return json.loads(
-        output_text
+    return json.loads(output_text)
+
+
+# ============================================================
+# HTML EMAIL
+# ============================================================
+
+def esc(value):
+    return html.escape(
+        str(value or "")
     )
 
 
-# ============================================================
-# PRINT AI RESULT
-# ============================================================
-
-def print_analysis(
-    number,
+def analysis_html(
     paper,
     analysis,
 ):
+    methods = ""
 
-    print()
-    print("=" * 78)
+    for method in analysis["methods"]:
+        methods += f"""
+        <li style="margin-bottom:8px;">
+          <strong>{esc(method["method"])}</strong><br>
+          <span style="color:#555;">
+            Purpose: {esc(method["purpose"])}
+          </span>
+        </li>
+        """
 
-    print(
-        f"AI ANALYSIS {number}/6"
-    )
-
-    print("=" * 78)
-
-    print(
-        "Journal :",
-        paper["journal"],
-    )
-
-    print(
-        "Title   :",
-        paper["title"],
-    )
-
-    print(
-        "DOI     :",
-        paper["doi"],
-    )
-
-    print(
-        "Source  :",
-        paper["source"],
-    )
-
-    print(
-        "Quality :",
-        paper["quality"],
-    )
-
-    print(
-        "Chars   :",
-        len(
-            paper[
-                "scientific_text"
-            ]
-        ),
-    )
-
-    print()
-    print(
-        "RESEARCH QUESTION"
-    )
-
-    print(
-        analysis[
-            "research_question"
-        ]
-    )
-
-    print()
-    print(
-        "STUDY SYSTEM"
-    )
-
-    print(
-        analysis[
-            "study_system"
-        ]
-    )
-
-    print()
-    print(
-        "METHODS"
-    )
-
-    for index, method in enumerate(
-        analysis["methods"],
-        start=1,
-    ):
-
-        print(
-            f"{index}.",
-            method["method"],
-        )
-
-        print(
-            "   Purpose:",
-            method["purpose"],
-        )
-
-    print()
-    print(
-        "KEY FINDINGS"
-    )
+    findings = ""
 
     for finding in analysis[
         "key_findings"
     ]:
-
-        print(
-            "-",
-            finding,
+        findings += (
+            "<li style='margin-bottom:6px;'>"
+            + esc(finding)
+            + "</li>"
         )
 
-    print()
-    print(
-        "CONCEPTUAL INNOVATION"
+    quality_label = (
+        paper["quality"]
     )
 
-    print(
-        analysis[
-            "conceptual_innovation"
-        ]
+    return f"""
+    <div style="
+        border:1px solid #dddddd;
+        border-radius:12px;
+        padding:24px;
+        margin:0 0 28px 0;
+        background:#ffffff;
+    ">
+
+      <div style="
+          font-size:13px;
+          font-weight:700;
+          letter-spacing:0.5px;
+          margin-bottom:8px;
+      ">
+        {esc(paper["journal"])}
+        · {esc(paper["article_type"])}
+      </div>
+
+      <h2 style="
+          margin:0 0 12px 0;
+          font-size:22px;
+          line-height:1.35;
+      ">
+        {esc(paper["title"])}
+      </h2>
+
+      <div style="
+          font-size:13px;
+          color:#666;
+          margin-bottom:18px;
+          line-height:1.7;
+      ">
+        Date: {esc(paper["date"])}<br>
+        DOI: {esc(paper["doi"])}<br>
+        Scientific source: {esc(paper["source"])}<br>
+        Evidence: <strong>{esc(quality_label)}</strong>
+      </div>
+
+      <p>
+        <a href="{esc(paper["url"])}">
+          Open publisher article
+        </a>
+      </p>
+
+      <hr style="
+          border:none;
+          border-top:1px solid #eeeeee;
+          margin:22px 0;
+      ">
+
+      <h3>Research question</h3>
+      <p>{esc(analysis["research_question"])}</p>
+
+      <h3>Study system</h3>
+      <p>{esc(analysis["study_system"])}</p>
+
+      <h3>Methods</h3>
+      <ol>
+        {methods}
+      </ol>
+
+      <h3>Key findings</h3>
+      <ul>
+        {findings}
+      </ul>
+
+      <h3>Conceptual innovation</h3>
+      <p>{esc(analysis["conceptual_innovation"])}</p>
+
+      <h3>Methodological innovation</h3>
+      <p>{esc(analysis["methodological_innovation"])}</p>
+
+      <h3>Why it matters</h3>
+      <p>{esc(analysis["why_it_matters"])}</p>
+
+      <h3>Evidence limitations</h3>
+      <p>{esc(analysis["evidence_limitations"])}</p>
+
+    </div>
+    """
+
+
+def build_email_html(results):
+    today = datetime.now(
+        timezone.utc
+    ).date().isoformat()
+
+    cards = ""
+
+    for paper, analysis in results:
+        cards += analysis_html(
+            paper,
+            analysis,
+        )
+
+    return f"""
+    <!doctype html>
+    <html>
+    <body style="
+        margin:0;
+        padding:0;
+        background:#f5f5f5;
+        font-family:
+          Arial,
+          Helvetica,
+          sans-serif;
+        color:#222222;
+    ">
+
+      <div style="
+          max-width:820px;
+          margin:0 auto;
+          padding:32px 18px;
+      ">
+
+        <div style="
+            margin-bottom:28px;
+        ">
+          <h1 style="
+              margin:0 0 8px 0;
+              font-size:30px;
+          ">
+            CNS Research Digest
+          </h1>
+
+          <div style="
+              color:#666666;
+              font-size:14px;
+          ">
+            Nature · Science · Cell
+            &nbsp;|&nbsp;
+            V5 Email Test
+            &nbsp;|&nbsp;
+            {today}
+          </div>
+        </div>
+
+        {cards}
+
+        <div style="
+            color:#777777;
+            font-size:12px;
+            line-height:1.6;
+            margin-top:20px;
+        ">
+          AI analysis is based only on the scientific text
+          retrieved by the agent. LOW-evidence summaries may
+          not contain sufficient methodological detail.
+        </div>
+
+      </div>
+
+    </body>
+    </html>
+    """
+
+
+# ============================================================
+# EMAIL
+# ============================================================
+
+def send_email(results):
+    password = os.environ.get(
+        "GMAIL_APP_PASSWORD",
+        "",
+    ).strip()
+
+    if not password:
+        raise RuntimeError(
+            "GMAIL_APP_PASSWORD is missing."
+        )
+
+    if (
+        "YOUR_GMAIL"
+        in EMAIL_FROM
+        or "YOUR_GMAIL"
+        in EMAIL_TO
+    ):
+        raise RuntimeError(
+            "Replace EMAIL_FROM and EMAIL_TO "
+            "with your Gmail address."
+        )
+
+    msg = EmailMessage()
+
+    msg["From"] = EMAIL_FROM
+    msg["To"] = EMAIL_TO
+
+    msg["Subject"] = (
+        "[TEST] CNS Research Digest "
+        f"— {len(results)} papers"
     )
 
-    print()
-    print(
-        "METHODOLOGICAL INNOVATION"
+    msg.set_content(
+        (
+            "CNS Research Digest test email.\n\n"
+            "Please view the HTML version."
+        )
     )
 
-    print(
-        analysis[
-            "methodological_innovation"
-        ]
+    msg.add_alternative(
+        build_email_html(results),
+        subtype="html",
     )
 
-    print()
-    print(
-        "WHY IT MATTERS"
-    )
+    context = ssl.create_default_context()
 
-    print(
-        analysis[
-            "why_it_matters"
-        ]
-    )
+    with smtplib.SMTP_SSL(
+        SMTP_HOST,
+        SMTP_PORT,
+        context=context,
+    ) as server:
 
-    print()
-    print(
-        "EVIDENCE LIMITATIONS"
-    )
+        server.login(
+            EMAIL_FROM,
+            password,
+        )
 
-    print(
-        analysis[
-            "evidence_limitations"
-        ]
-    )
+        server.send_message(msg)
 
 
 # ============================================================
@@ -1641,202 +1416,115 @@ def print_analysis(
 # ============================================================
 
 def main():
-
     print("=" * 78)
-
     print(
-        "CNS ARTICLE AGENT V4 "
-        "— OPENAI ANALYSIS TEST"
+        "CNS ARTICLE AGENT V5 — EMAIL TEST"
     )
-
     print("=" * 78)
 
     print()
-    print(
-        "Model :",
-        OPENAI_MODEL,
-    )
-
-    print(
-        "Email : OFF"
-    )
-
-    print(
-        "Dedup : OFF"
-    )
-
-    print(
-        "Test  : 6 papers"
-    )
+    print("OpenAI : ON")
+    print("Email  : ON")
+    print("Dedup  : OFF")
+    print("State  : OFF")
+    print("Schedule: OFF")
+    print("Test papers: 3")
 
     print()
     print(
-        "Retrieving article pools..."
+        "Retrieving one HIGH-evidence "
+        "paper per journal..."
     )
 
-    nature = (
-        get_nature_articles()
-    )
+    papers = get_test_papers()
 
-    science = (
-        get_science_articles()
-    )
-
-    cell = (
-        get_cell_articles()
-    )
-
-    print()
-    print(
-        "Nature pool:",
-        len(nature),
-    )
-
-    print(
-        "Science pool:",
-        len(science),
-    )
-
-    print(
-        "Cell pool:",
-        len(cell),
-    )
-
-    selected = (
-        select_test_articles(
-            nature,
-            science,
-            cell,
+    if len(papers) != 3:
+        raise RuntimeError(
+            "Expected exactly 3 papers, "
+            f"but selected {len(papers)}."
         )
-    )
 
     print()
     print("=" * 78)
-    print(
-        "SELECTED TEST PAPERS"
-    )
+    print("SELECTED PAPERS")
     print("=" * 78)
 
     for index, paper in enumerate(
-        selected,
+        papers,
         start=1,
     ):
-
-        print()
-
         print(
             index,
             paper["journal"],
             "|",
             paper["quality"],
             "|",
+            paper["source"],
+            "|",
             paper["title"],
         )
 
-    if len(selected) != 6:
+    results = []
 
-        raise RuntimeError(
-            "Expected exactly 6 test papers, "
-            f"but selected {len(selected)}."
+    print()
+    print("=" * 78)
+    print("OPENAI ANALYSIS")
+    print("=" * 78)
+
+    for index, paper in enumerate(
+        papers,
+        start=1,
+    ):
+        print()
+        print(
+            f"Analyzing {index}/3:",
+            paper["journal"],
+            "-",
+            paper["title"],
+        )
+
+        analysis = call_openai(
+            paper
+        )
+
+        results.append(
+            (
+                paper,
+                analysis,
+            )
+        )
+
+        print(
+            f"AI {index}/3: SUCCESS"
         )
 
     print()
     print("=" * 78)
-    print(
-        "STARTING OPENAI ANALYSIS"
-    )
+    print("SENDING EMAIL")
     print("=" * 78)
 
-    successes = 0
-    failures = 0
+    send_email(results)
 
-    for index, paper in enumerate(
-        selected,
-        start=1,
-    ):
-
-        try:
-
-            analysis = call_openai(
-                paper
-            )
-
-            print_analysis(
-                index,
-                paper,
-                analysis,
-            )
-
-            successes += 1
-
-        except Exception as exc:
-
-            failures += 1
-
-            print()
-            print("=" * 78)
-
-            print(
-                f"AI ANALYSIS {index}/6 FAILED"
-            )
-
-            print("=" * 78)
-
-            print(
-                paper["journal"],
-                "|",
-                paper["title"],
-            )
-
-            print(
-                type(exc).__name__,
-                ":",
-                exc,
-            )
+    print()
+    print("EMAIL: SUCCESS")
 
     print()
     print("=" * 78)
-    print(
-        "V4 SUMMARY"
-    )
+    print("V5 EMAIL TEST SUCCESS")
     print("=" * 78)
-
-    print(
-        "Selected papers :",
-        len(selected),
-    )
-
-    print(
-        "AI successes    :",
-        successes,
-    )
-
-    print(
-        "AI failures     :",
-        failures,
-    )
 
     print()
     print(
-        "Expected diagnostic:"
+        "No state file was changed."
     )
 
     print(
-        "- HIGH evidence should produce "
-        "specific supported methods."
+        "No papers were marked as seen."
     )
 
     print(
-        "- LOW evidence should NOT cause "
-        "the model to invent methods."
+        "No schedule is active."
     )
-
-    print()
-    print("=" * 78)
-    print(
-        "V4 FINISHED"
-    )
-    print("=" * 78)
 
 
 if __name__ == "__main__":
