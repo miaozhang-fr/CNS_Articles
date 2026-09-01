@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V5 — Email Test
+CNS Article Agent V5.1 — English Email Test
 
 Pipeline:
 RSS
  -> exact article-type filtering
  -> scientific-text retrieval
- -> OpenAI analysis
+ -> OpenAI analysis in English
  -> HTML email
 
 TEST MODE:
@@ -48,11 +48,11 @@ MAX_FEED_ITEMS = 500
 OPENAI_MODEL = "gpt-5.6-luna"
 
 # ============================================================
-# IMPORTANT — CHANGE THESE TWO
+# IMPORTANT — USE YOUR GMAIL ADDRESS
 # ============================================================
 
-EMAIL_FROM = "zhangmiao092@gmail.com"
-EMAIL_TO = "miao.zhang@universite-paris-saclay.fr"
+EMAIL_FROM = "YOUR_GMAIL@gmail.com"
+EMAIL_TO = "YOUR_GMAIL@gmail.com"
 
 # ============================================================
 
@@ -61,7 +61,7 @@ SMTP_PORT = 465
 
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/5.0; +https://github.com/)"
+    "(compatible; CNSArticleAgent/5.1; +https://github.com/)"
 )
 
 JOURNALS = [
@@ -132,6 +132,7 @@ def child_text(element, names):
             text = clean(
                 "".join(child.itertext())
             )
+
             if text:
                 return text
 
@@ -727,7 +728,7 @@ def nature_article(paper):
 
 
 # ============================================================
-# SCIENCE / CELL ENRICHMENT
+# SCIENCE / CELL SCIENTIFIC TEXT
 # ============================================================
 
 def enrich_non_nature(
@@ -832,13 +833,13 @@ def enrich_non_nature(
 
 
 # ============================================================
-# SELECT 3 TEST PAPERS
+# SELECT THREE TEST PAPERS
 # ============================================================
 
 def get_test_papers():
     selected = []
 
-    # Nature
+    # Nature — one HIGH
     nature_papers = fetch_feed(
         JOURNALS[0]
     )
@@ -850,13 +851,12 @@ def get_test_papers():
 
         if (
             result
-            and result["quality"]
-            == "HIGH"
+            and result["quality"] == "HIGH"
         ):
             selected.append(result)
             break
 
-    # Science
+    # Science — one HIGH
     science_papers = fetch_feed(
         JOURNALS[1]
     )
@@ -876,7 +876,7 @@ def get_test_papers():
             selected.append(result)
             break
 
-    # Cell
+    # Cell — one HIGH
     cell_papers = fetch_feed(
         JOURNALS[2]
     )
@@ -913,7 +913,7 @@ def get_test_papers():
 
 
 # ============================================================
-# OPENAI
+# OPENAI PROMPT
 # ============================================================
 
 def build_analysis_prompt(paper):
@@ -925,60 +925,173 @@ def build_analysis_prompt(paper):
     ):
         evidence_warning = """
 The supplied source is incomplete.
+
 Be especially conservative.
-Do not reconstruct methods that are not explicitly stated.
+
+Do not reconstruct experimental or computational methods that are not
+explicitly stated in the supplied scientific text.
+
+If methodological information is absent, explicitly state:
+"Not stated in available source."
 """
 
     return f"""
-You are analyzing a scientific research paper.
+You are analyzing a scientific research paper for a professional
+scientific literature digest.
 
-Analyze ONLY the supplied scientific text.
+Your task is to extract and interpret ONLY information supported by
+the supplied scientific text.
 
-STRICT RULES:
+============================================================
+STRICT EVIDENCE RULES
+============================================================
 
 1. Never invent information.
-2. Never infer methods from the title.
-3. Never infer methods from general scientific knowledge.
-4. Report a method only if explicitly supported by the text.
+
+2. Never infer a method from the paper title.
+
+3. Never infer experimental or computational methods from general
+   scientific knowledge or from what would normally be done in the field.
+
+4. Report a method only when it is explicitly stated or directly
+   described in the supplied scientific text.
+
 5. If a method is not stated, write:
    "Not stated in available source."
-6. Do not exaggerate novelty.
-7. Do not automatically treat a named framework or technique
-   as a methodological innovation.
-8. Report methodological innovation only when the supplied
-   text supports a specific new methodological capability,
-   design, platform, workflow, or technical advance.
-9. Evidence limitations are mandatory.
+
+6. Clearly distinguish:
+   - what the authors did,
+   - what the authors found,
+   - the broader conceptual significance.
+
+7. Do not exaggerate novelty.
+
+8. Do not automatically treat a named framework, algorithm, platform,
+   technique, assay, or workflow as a methodological innovation.
+
+9. Report methodological innovation only when the supplied scientific
+   text supports a specific new methodological capability, design,
+   platform, workflow, technical advance, or substantial technical
+   improvement.
+
+10. If methodological innovation is not sufficiently supported, write:
+    "Not stated in available source."
+
+11. Evidence limitations are mandatory.
+
+12. Do not claim study limitations that are not stated in the supplied
+    text. Instead, describe limitations of the AVAILABLE SOURCE, such as
+    missing sample sizes, experimental details, statistics, controls,
+    validation procedures, or methodological details.
 
 {evidence_warning}
 
-JOURNAL:
+============================================================
+PAPER METADATA
+============================================================
+
+Journal:
 {paper["journal"]}
 
-TITLE:
+Title:
 {paper["title"]}
 
 DOI:
 {paper["doi"]}
 
-ARTICLE TYPE:
+Publication date:
+{paper["date"]}
+
+Article type:
 {paper["article_type"]}
 
-SOURCE:
+Scientific-text source:
 {paper["source"]}
 
-EVIDENCE QUALITY:
+Evidence quality:
 {paper["quality"]}
 
-SCIENTIFIC TEXT:
+============================================================
+SCIENTIFIC TEXT
+============================================================
 
 {paper["scientific_text"]}
 
+============================================================
+OUTPUT REQUIREMENTS
+============================================================
+
 Return ONLY valid JSON.
 
-Write the analysis in Chinese.
+Write the entire analysis in English.
 
-Use this exact structure:
+Use clear, concise, professional scientific English suitable for
+a researcher reading a scientific literature digest.
+
+Be precise rather than verbose.
+
+Preserve standard scientific terminology, gene names, protein names,
+method names, algorithm names, instrument names, dataset names,
+species names, and other specialist terminology in their conventional
+English forms.
+
+Do not translate the analysis into Chinese or any other language.
+
+For "research_question":
+- State the central scientific question or problem addressed.
+- Do not add hypotheses not supported by the supplied text.
+
+For "study_system":
+- Identify the organisms, cells, tissues, materials, datasets,
+  experimental systems, computational systems, or other study systems
+  explicitly described.
+- If the source does not state them, say:
+  "Not stated in available source."
+
+For "methods":
+- Include only methods explicitly supported by the supplied text.
+- Give the purpose of each method.
+- Do not convert a biological result into a method.
+- Do not infer standard procedures that are not mentioned.
+
+If no methods are explicitly supported, return:
+
+[
+  {{
+    "method": "Not stated in available source.",
+    "purpose": "Not stated in available source."
+  }}
+]
+
+For "key_findings":
+- Report the principal findings supported by the supplied text.
+- Preserve important quantitative results when explicitly stated.
+
+For "conceptual_innovation":
+- Explain the new conceptual insight or scientific interpretation
+  supported by the text.
+- Do not exaggerate novelty.
+
+For "methodological_innovation":
+- Report only explicitly supported methodological or technical advances.
+- A named method alone is not sufficient evidence of methodological
+  innovation.
+- If not sufficiently supported, write:
+  "Not stated in available source."
+
+For "why_it_matters":
+- Explain the scientific importance or potential significance supported
+  by the supplied text.
+- Avoid unsupported clinical, technological, agricultural, or societal
+  extrapolation.
+
+For "evidence_limitations":
+- Describe what cannot be confidently assessed from the available
+  scientific text.
+- Distinguish limitations of the supplied source from limitations of
+  the actual study.
+
+Use exactly this JSON structure:
 
 {{
   "research_question": "",
@@ -989,7 +1102,9 @@ Use this exact structure:
       "purpose": ""
     }}
   ],
-  "key_findings": [""],
+  "key_findings": [
+    ""
+  ],
   "conceptual_innovation": "",
   "methodological_innovation": "",
   "why_it_matters": "",
@@ -997,6 +1112,10 @@ Use this exact structure:
 }}
 """.strip()
 
+
+# ============================================================
+# OPENAI
+# ============================================================
 
 def call_openai(paper):
     api_key = os.environ.get(
@@ -1166,9 +1285,9 @@ def analysis_html(
 
     for method in analysis["methods"]:
         methods += f"""
-        <li style="margin-bottom:8px;">
+        <li style="margin-bottom:10px;">
           <strong>{esc(method["method"])}</strong><br>
-          <span style="color:#555;">
+          <span style="color:#555555;">
             Purpose: {esc(method["purpose"])}
           </span>
         </li>
@@ -1180,14 +1299,10 @@ def analysis_html(
         "key_findings"
     ]:
         findings += (
-            "<li style='margin-bottom:6px;'>"
+            "<li style='margin-bottom:8px;'>"
             + esc(finding)
             + "</li>"
         )
-
-    quality_label = (
-        paper["quality"]
-    )
 
     return f"""
     <div style="
@@ -1218,14 +1333,14 @@ def analysis_html(
 
       <div style="
           font-size:13px;
-          color:#666;
+          color:#666666;
           margin-bottom:18px;
           line-height:1.7;
       ">
         Date: {esc(paper["date"])}<br>
         DOI: {esc(paper["doi"])}<br>
         Scientific source: {esc(paper["source"])}<br>
-        Evidence: <strong>{esc(quality_label)}</strong>
+        Evidence: <strong>{esc(paper["quality"])}</strong>
       </div>
 
       <p>
@@ -1241,32 +1356,44 @@ def analysis_html(
       ">
 
       <h3>Research question</h3>
-      <p>{esc(analysis["research_question"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["research_question"])}
+      </p>
 
       <h3>Study system</h3>
-      <p>{esc(analysis["study_system"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["study_system"])}
+      </p>
 
       <h3>Methods</h3>
-      <ol>
+      <ol style="line-height:1.55;">
         {methods}
       </ol>
 
       <h3>Key findings</h3>
-      <ul>
+      <ul style="line-height:1.55;">
         {findings}
       </ul>
 
       <h3>Conceptual innovation</h3>
-      <p>{esc(analysis["conceptual_innovation"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["conceptual_innovation"])}
+      </p>
 
       <h3>Methodological innovation</h3>
-      <p>{esc(analysis["methodological_innovation"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["methodological_innovation"])}
+      </p>
 
       <h3>Why it matters</h3>
-      <p>{esc(analysis["why_it_matters"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["why_it_matters"])}
+      </p>
 
       <h3>Evidence limitations</h3>
-      <p>{esc(analysis["evidence_limitations"])}</p>
+      <p style="line-height:1.65;">
+        {esc(analysis["evidence_limitations"])}
+      </p>
 
     </div>
     """
@@ -1287,7 +1414,9 @@ def build_email_html(results):
 
     return f"""
     <!doctype html>
+
     <html>
+
     <body style="
         margin:0;
         padding:0;
@@ -1308,6 +1437,7 @@ def build_email_html(results):
         <div style="
             margin-bottom:28px;
         ">
+
           <h1 style="
               margin:0 0 8px 0;
               font-size:30px;
@@ -1321,10 +1451,11 @@ def build_email_html(results):
           ">
             Nature · Science · Cell
             &nbsp;|&nbsp;
-            V5 Email Test
+            V5.1 English Email Test
             &nbsp;|&nbsp;
             {today}
           </div>
+
         </div>
 
         {cards}
@@ -1335,14 +1466,17 @@ def build_email_html(results):
             line-height:1.6;
             margin-top:20px;
         ">
-          AI analysis is based only on the scientific text
-          retrieved by the agent. LOW-evidence summaries may
-          not contain sufficient methodological detail.
+          AI analysis is based only on scientific text
+          retrieved by the agent. Evidence quality reflects
+          the completeness and provenance of the available
+          scientific text. LOW-evidence summaries may not
+          contain sufficient methodological detail.
         </div>
 
       </div>
 
     </body>
+
     </html>
     """
 
@@ -1363,10 +1497,8 @@ def send_email(results):
         )
 
     if (
-        "YOUR_GMAIL"
-        in EMAIL_FROM
-        or "YOUR_GMAIL"
-        in EMAIL_TO
+        "YOUR_GMAIL" in EMAIL_FROM
+        or "YOUR_GMAIL" in EMAIL_TO
     ):
         raise RuntimeError(
             "Replace EMAIL_FROM and EMAIL_TO "
@@ -1385,7 +1517,7 @@ def send_email(results):
 
     msg.set_content(
         (
-            "CNS Research Digest test email.\n\n"
+            "CNS Research Digest English test email.\n\n"
             "Please view the HTML version."
         )
     )
@@ -1417,13 +1549,17 @@ def send_email(results):
 
 def main():
     print("=" * 78)
+
     print(
-        "CNS ARTICLE AGENT V5 — EMAIL TEST"
+        "CNS ARTICLE AGENT V5.1 "
+        "— ENGLISH EMAIL TEST"
     )
+
     print("=" * 78)
 
     print()
     print("OpenAI : ON")
+    print("Language: ENGLISH")
     print("Email  : ON")
     print("Dedup  : OFF")
     print("State  : OFF")
@@ -1431,6 +1567,7 @@ def main():
     print("Test papers: 3")
 
     print()
+
     print(
         "Retrieving one HIGH-evidence "
         "paper per journal..."
@@ -1476,6 +1613,7 @@ def main():
         start=1,
     ):
         print()
+
         print(
             f"Analyzing {index}/3:",
             paper["journal"],
@@ -1510,7 +1648,11 @@ def main():
 
     print()
     print("=" * 78)
-    print("V5 EMAIL TEST SUCCESS")
+
+    print(
+        "V5.1 ENGLISH EMAIL TEST SUCCESS"
+    )
+
     print("=" * 78)
 
     print()
