@@ -5,20 +5,17 @@ on:
 
   schedule:
     # Europe/Paris 10:30
-    #
-    # Summer time (CEST = UTC+2):
-    # 10:30 Paris = 08:30 UTC
-    #
-    # Winter time (CET = UTC+1):
-    # 10:30 Paris = 09:30 UTC
-    #
-    # GitHub cron itself has no reliable Europe/Paris DST timezone,
-    # so both UTC candidates run.
-    # The Paris-time gate below allows only the true 10:30 run.
-
+    # Summer (CEST): 08:30 UTC
+    # Winter (CET): 09:30 UTC
     - cron: "30 8 * * *"
     - cron: "30 9 * * *"
 
+permissions:
+  contents: write
+
+concurrency:
+  group: cns-article-agent-production
+  cancel-in-progress: false
 
 jobs:
   cns-production:
