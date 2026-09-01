@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-CNS Article Agent V6 — Production
+CNS Article Agent V6.1 — Production
 
 Journals:
 - Nature  -> Article
@@ -21,8 +21,16 @@ Production pipeline:
       -> RSS summary
 6. Analyze new papers with OpenAI
 7. Send English HTML email
-8. ONLY after successful email:
+8. ONLY after successful paper email:
       update agent_state.json
+
+Daily status behavior:
+- New papers found:
+    send full research digest
+- Zero new papers:
+    send a "0 new papers" status email
+    do NOT call OpenAI
+    do NOT change state
 
 Important:
 - First production run = BASELINE ONLY
@@ -52,7 +60,7 @@ from email.utils import parsedate_to_datetime
 # SETTINGS
 # ============================================================
 
-VERSION = "6.0"
+VERSION = "6.1"
 
 TIMEOUT = 30
 OPENAI_TIMEOUT = 120
@@ -71,7 +79,7 @@ SMTP_PORT = 465
 
 UA = (
     "Mozilla/5.0 "
-    "(compatible; CNSArticleAgent/6.0; +https://github.com/)"
+    "(compatible; CNSArticleAgent/6.1; +https://github.com/)"
 )
 
 
@@ -551,9 +559,6 @@ def extract_meta_tag(page, key):
 def official_abstract(page):
     """
     Prefer publisher-provided abstract/description metadata.
-
-    This retrieval logic has already been validated against
-    the production feeds during V3-V5 testing.
     """
 
     candidates = []
@@ -796,9 +801,6 @@ def classify_nature_article(paper):
     official Nature article page
         ->
     citation_article_type == Article
-
-    This prevents Review papers with s41586 DOIs from
-    entering the production digest.
     """
 
     if not nature_is_candidate(
@@ -1223,9 +1225,6 @@ def state_record(paper, timestamp):
 def save_state_atomic(state):
     """
     Write a temporary file first and then replace state.
-
-    This reduces the chance of leaving a partially written
-    JSON file if the process is interrupted.
     """
 
     temp_file = (
@@ -1263,9 +1262,6 @@ def initialize_baseline(
     Record all currently visible target papers as seen.
 
     Send NO historical digest.
-
-    This prevents the first production run from emailing
-    the entire existing feed history.
     """
 
     timestamp = utc_now_iso()
@@ -2021,6 +2017,168 @@ def build_email_html(results):
     """
 
 
+def build_zero_paper_email_html(targets):
+    today = datetime.now(
+        timezone.utc
+    ).date().isoformat()
+
+    journal_counts = {
+        "Nature": 0,
+        "Science": 0,
+        "Cell": 0,
+    }
+
+    for paper in targets:
+        journal = paper.get(
+            "journal",
+            "",
+        )
+
+        if journal in journal_counts:
+            journal_counts[journal] += 1
+
+    return f"""
+    <!doctype html>
+
+    <html>
+
+    <body style="
+        margin:0;
+        padding:0;
+        background:#f5f5f5;
+        font-family:
+          Arial,
+          Helvetica,
+          sans-serif;
+        color:#222222;
+    ">
+
+      <div style="
+          max-width:820px;
+          margin:0 auto;
+          padding:32px 18px;
+      ">
+
+        <div style="
+            border:1px solid #dddddd;
+            border-radius:12px;
+            padding:28px;
+            background:#ffffff;
+        ">
+
+          <h1 style="
+              margin:0 0 8px 0;
+              font-size:30px;
+          ">
+            CNS Research Digest
+          </h1>
+
+          <div style="
+              color:#666666;
+              font-size:14px;
+              line-height:1.7;
+              margin-bottom:30px;
+          ">
+            Nature · Science · Cell
+            <br>
+            {today}
+          </div>
+
+          <div style="
+              font-size:48px;
+              line-height:1;
+              font-weight:700;
+              margin-bottom:8px;
+          ">
+            0
+          </div>
+
+          <div style="
+              font-size:20px;
+              font-weight:600;
+              margin-bottom:28px;
+          ">
+            new papers
+          </div>
+
+          <p style="
+              line-height:1.7;
+              font-size:15px;
+          ">
+            The CNS Article Agent completed today's
+            literature check successfully.
+          </p>
+
+          <p style="
+              line-height:1.7;
+              font-size:15px;
+          ">
+            No new target-type papers were detected
+            since the previous successful check.
+          </p>
+
+          <hr style="
+              border:none;
+              border-top:1px solid #eeeeee;
+              margin:26px 0;
+          ">
+
+          <h3 style="
+              margin-bottom:14px;
+          ">
+            Current feed status
+          </h3>
+
+          <div style="
+              line-height:1.9;
+              font-size:14px;
+          ">
+            Nature Articles:
+            <strong>
+              {journal_counts["Nature"]}
+            </strong>
+            <br>
+
+            Science Research Articles:
+            <strong>
+              {journal_counts["Science"]}
+            </strong>
+            <br>
+
+            Cell Articles:
+            <strong>
+              {journal_counts["Cell"]}
+            </strong>
+            <br>
+
+            Total target papers visible:
+            <strong>
+              {len(targets)}
+            </strong>
+          </div>
+
+          <div style="
+              color:#777777;
+              font-size:12px;
+              line-height:1.6;
+              margin-top:28px;
+          ">
+            No OpenAI analysis was required because
+            no unseen papers were detected.
+
+            Persistent DOI-based deduplication remains active.
+          </div>
+
+        </div>
+
+      </div>
+
+    </body>
+
+    </html>
+    """
+
+
 # ============================================================
 # EMAIL
 # ============================================================
@@ -2062,6 +2220,75 @@ def send_email(results):
 
     msg.add_alternative(
         build_email_html(results),
+        subtype="html",
+    )
+
+    context = (
+        ssl.create_default_context()
+    )
+
+    with smtplib.SMTP_SSL(
+        SMTP_HOST,
+        SMTP_PORT,
+        context=context,
+    ) as server:
+        server.login(
+            EMAIL_FROM,
+            password,
+        )
+
+        server.send_message(msg)
+
+
+def send_zero_paper_email(targets):
+    """
+    Send a daily status email even when no new papers
+    are discovered.
+
+    No OpenAI call is made.
+    State remains unchanged.
+    """
+
+    password = os.environ.get(
+        "GMAIL_APP_PASSWORD",
+        "",
+    ).strip()
+
+    if not password:
+        raise RuntimeError(
+            "GMAIL_APP_PASSWORD is missing."
+        )
+
+    msg = EmailMessage()
+
+    msg["From"] = EMAIL_FROM
+    msg["To"] = EMAIL_TO
+
+    today = datetime.now(
+        timezone.utc
+    ).date().isoformat()
+
+    msg["Subject"] = (
+        "CNS Research Digest"
+        f" — {today}"
+        " — 0 new papers"
+    )
+
+    msg.set_content(
+        (
+            "CNS Research Digest\n\n"
+            "0 new papers.\n\n"
+            "The scheduled CNS literature check "
+            "completed successfully.\n\n"
+            "No new target-type papers were detected.\n\n"
+            "No OpenAI analysis was required."
+        )
+    )
+
+    msg.add_alternative(
+        build_zero_paper_email_html(
+            targets
+        ),
         subtype="html",
     )
 
@@ -2208,7 +2435,7 @@ def main():
     print("=" * 78)
 
     print(
-        "CNS ARTICLE AGENT V6 "
+        "CNS ARTICLE AGENT V6.1 "
         "— PRODUCTION"
     )
 
@@ -2230,6 +2457,10 @@ def main():
 
     print(
         "Email   : ON"
+    )
+
+    print(
+        "Zero-paper email: ON"
     )
 
     print(
@@ -2350,7 +2581,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # NOTHING NEW
+    # NOTHING NEW -> SEND DAILY STATUS EMAIL
     # --------------------------------------------------------
 
     if not new_papers:
@@ -2363,8 +2594,20 @@ def main():
             "No OpenAI calls."
         )
 
+        print()
+        print("=" * 78)
         print(
-            "No email sent."
+            "SENDING ZERO-PAPER STATUS EMAIL"
+        )
+        print("=" * 78)
+
+        send_zero_paper_email(
+            targets
+        )
+
+        print()
+        print(
+            "EMAIL: SUCCESS"
         )
 
         print(
@@ -2373,7 +2616,11 @@ def main():
 
         print()
         print("=" * 78)
-        print("V6 FINISHED — NOTHING NEW")
+
+        print(
+            "V6.1 FINISHED — 0 NEW PAPERS"
+        )
+
         print("=" * 78)
 
         return
@@ -2425,7 +2672,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # IMPORTANT SAFETY RULE
+    # TRANSACTION SAFETY
     # --------------------------------------------------------
 
     if len(results) != len(
@@ -2481,7 +2728,7 @@ def main():
     print("=" * 78)
 
     print(
-        "V6 PRODUCTION RUN SUCCESS"
+        "V6.1 PRODUCTION RUN SUCCESS"
     )
 
     print("=" * 78)
