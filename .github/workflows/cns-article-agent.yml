@@ -1,10 +1,10 @@
-name: CNS Article Agent V4 Test
+name: CNS Article Agent V5 Email Test
 
 on:
   workflow_dispatch:
 
 jobs:
-  ai-analysis-test:
+  email-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +16,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run CNS Article Agent V4
+      - name: Run CNS Article Agent V5
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python cns_article_agent.py
