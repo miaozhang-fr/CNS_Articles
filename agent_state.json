@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-01T14:03:40+00:00",
+  "last_successful_run": "2026-09-03T08:40:34+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -128,6 +128,24 @@
       "title": "Cell-type-specific eQTLs underlie the genetic architecture of complex traits",
       "url": "https://www.nature.com/articles/s41586-026-10577-6"
     },
+    "doi:10.1038/s41586-026-10690-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10690-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Connectome analysis of a cerebellum-like circuit for sensory prediction",
+      "url": "https://www.nature.com/articles/s41586-026-10690-6"
+    },
+    "doi:10.1038/s41586-026-10818-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10818-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Exploring baryon semileptonic decays through polarization and entanglement",
+      "url": "https://www.nature.com/articles/s41586-026-10818-8"
+    },
     "doi:10.1038/s41586-026-10893-x": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10893-x",
@@ -154,6 +172,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "3D bulk-resolved g -wave altermagnetic order parameter in CrSb",
       "url": "https://www.nature.com/articles/s41586-026-10902-z"
+    },
+    "doi:10.1038/s41586-026-10908-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10908-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "The nutritional value of invertebrate aquatic foods",
+      "url": "https://www.nature.com/articles/s41586-026-10908-7"
     },
     "doi:10.1038/s41586-026-10915-8": {
       "article_type": "Article",
@@ -191,6 +218,24 @@
       "title": "Critical zone processes limit alkalinity export from natural basaltic systems",
       "url": "https://www.nature.com/articles/s41586-026-10936-3"
     },
+    "doi:10.1038/s41586-026-10937-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10937-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Structure and operating principles of a monkeypox virus replisome",
+      "url": "https://www.nature.com/articles/s41586-026-10937-2"
+    },
+    "doi:10.1038/s41586-026-10940-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10940-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Late-life semaglutide treatment slows ageing and extends lifespan in female mice",
+      "url": "https://www.nature.com/articles/s41586-026-10940-7"
+    },
     "doi:10.1038/s41586-026-10941-6": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10941-6",
@@ -218,6 +263,24 @@
       "title": "Automated prototyping of genetic codes",
       "url": "https://www.nature.com/articles/s41586-026-10949-y"
     },
+    "doi:10.1038/s41586-026-10950-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10950-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Explainable deep learning improves human mental models of self-driving cars",
+      "url": "https://www.nature.com/articles/s41586-026-10950-5"
+    },
+    "doi:10.1038/s41586-026-10952-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10952-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Creating bottom-up RNA transfer vehicles from synthetic protein assemblies",
+      "url": "https://www.nature.com/articles/s41586-026-10952-3"
+    },
     "doi:10.1038/s41586-026-10961-2": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10961-2",
@@ -226,6 +289,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Amphibious stem-insect sheds light on colonization of land",
       "url": "https://www.nature.com/articles/s41586-026-10961-2"
+    },
+    "doi:10.1038/s41586-026-10962-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10962-1",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Rewiring the ribosome to translate proteins encoded in its own RNA",
+      "url": "https://www.nature.com/articles/s41586-026-10962-1"
     },
     "doi:10.1038/s41586-026-10964-z": {
       "article_type": "Article",
@@ -244,6 +316,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Endocannabinoids facilitate reward engagement through retrograde gain control",
       "url": "https://www.nature.com/articles/s41586-026-10967-w"
+    },
+    "doi:10.1038/s41586-026-10969-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10969-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Pines grow faster and are more drought resilient in the Southern Hemisphere",
+      "url": "https://www.nature.com/articles/s41586-026-10969-8"
     },
     "doi:10.1038/s41586-026-10971-0": {
       "article_type": "Article",
@@ -272,6 +353,51 @@
       "title": "Synergistic degradation of fucoidans in the ocean",
       "url": "https://www.nature.com/articles/s41586-026-10980-z"
     },
+    "doi:10.1038/s41586-026-10981-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10981-y",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Intracellular complement factor H protects neurons during CNS inflammation",
+      "url": "https://www.nature.com/articles/s41586-026-10981-y"
+    },
+    "doi:10.1038/s41586-026-10982-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10982-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Functional chimeric mRNAs encode proteins in mammalian immunity",
+      "url": "https://www.nature.com/articles/s41586-026-10982-x"
+    },
+    "doi:10.1038/s41586-026-10983-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10983-w",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Atmospheric CH 4 plateau sustained by NO x emission rise and southward shift",
+      "url": "https://www.nature.com/articles/s41586-026-10983-w"
+    },
+    "doi:10.1038/s41586-026-10986-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10986-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Probing far-from-equilibrium dynamics of electrical double layers",
+      "url": "https://www.nature.com/articles/s41586-026-10986-7"
+    },
+    "doi:10.1038/s41586-026-10987-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10987-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "3D epigenome of glial cell types in developing human cortex",
+      "url": "https://www.nature.com/articles/s41586-026-10987-6"
+    },
     "doi:10.1038/s41586-026-10988-5": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10988-5",
@@ -280,6 +406,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Video reconstruction of variable VLBI observations with neural fields",
       "url": "https://www.nature.com/articles/s41586-026-10988-5"
+    },
+    "doi:10.1038/s41586-026-10992-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10992-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-02",
+      "seen_at": "2026-09-03T08:40:34+00:00",
+      "title": "Robust inference and correlates from genetic associations with personality",
+      "url": "https://www.nature.com/articles/s41586-026-10992-9"
     },
     "doi:10.1126/science.adx6059": {
       "article_type": "Research Article",
