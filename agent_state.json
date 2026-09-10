@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-04T08:42:01+00:00",
+  "last_successful_run": "2026-09-10T08:41:19+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -272,6 +272,15 @@
       "title": "The complete gustatory connectome of adult Drosophila reveals how taste guides feeding, foraging, and social behavior",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00943-8?rss=yes"
     },
+    "doi:10.1038/s41586-026-10468-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10468-w",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Integrated signatures define mutational processes in prostate cancer",
+      "url": "https://www.nature.com/articles/s41586-026-10468-w"
+    },
     "doi:10.1038/s41586-026-10577-6": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10577-6",
@@ -298,6 +307,15 @@
       "seen_at": "2026-09-03T08:40:34+00:00",
       "title": "Exploring baryon semileptonic decays through polarization and entanglement",
       "url": "https://www.nature.com/articles/s41586-026-10818-8"
+    },
+    "doi:10.1038/s41586-026-10876-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10876-y",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Neocortical long-range inhibition promotes cortical synchrony and sleep",
+      "url": "https://www.nature.com/articles/s41586-026-10876-y"
     },
     "doi:10.1038/s41586-026-10893-x": {
       "article_type": "Article",
@@ -434,6 +452,15 @@
       "title": "Creating bottom-up RNA transfer vehicles from synthetic protein assemblies",
       "url": "https://www.nature.com/articles/s41586-026-10952-3"
     },
+    "doi:10.1038/s41586-026-10954-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10954-1",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "PLA2G2D in tumour-draining lymph nodes regulates anti-tumour immunity",
+      "url": "https://www.nature.com/articles/s41586-026-10954-1"
+    },
     "doi:10.1038/s41586-026-10961-2": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10961-2",
@@ -470,6 +497,15 @@
       "title": "Endocannabinoids facilitate reward engagement through retrograde gain control",
       "url": "https://www.nature.com/articles/s41586-026-10967-w"
     },
+    "doi:10.1038/s41586-026-10968-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10968-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Foaming photopolymers as a high-resolution biomimetic printing platform",
+      "url": "https://www.nature.com/articles/s41586-026-10968-9"
+    },
     "doi:10.1038/s41586-026-10969-8": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10969-8",
@@ -496,6 +532,24 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Ultrafast and reference-free sequence discovery in single-cell data",
       "url": "https://www.nature.com/articles/s41586-026-10975-w"
+    },
+    "doi:10.1038/s41586-026-10976-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10976-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Ancient proteins identify various Denisovan remains from Southwest China",
+      "url": "https://www.nature.com/articles/s41586-026-10976-9"
+    },
+    "doi:10.1038/s41586-026-10979-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10979-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Imaging cellular activity across all organs reveals body-wide circuits",
+      "url": "https://www.nature.com/articles/s41586-026-10979-6"
     },
     "doi:10.1038/s41586-026-10980-z": {
       "article_type": "Article",
@@ -560,6 +614,15 @@
       "title": "Video reconstruction of variable VLBI observations with neural fields",
       "url": "https://www.nature.com/articles/s41586-026-10988-5"
     },
+    "doi:10.1038/s41586-026-10990-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10990-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Mobile education builds resilience during shocks in five countries",
+      "url": "https://www.nature.com/articles/s41586-026-10990-x"
+    },
     "doi:10.1038/s41586-026-10992-9": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10992-9",
@@ -569,6 +632,96 @@
       "title": "Robust inference and correlates from genetic associations with personality",
       "url": "https://www.nature.com/articles/s41586-026-10992-9"
     },
+    "doi:10.1038/s41586-026-10993-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10993-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "TM184C is a GPCR-like regulator of intercellular exchange and autophagy",
+      "url": "https://www.nature.com/articles/s41586-026-10993-8"
+    },
+    "doi:10.1038/s41586-026-10997-4": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10997-4",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Denisovans from southwestern China and their subsistence strategies",
+      "url": "https://www.nature.com/articles/s41586-026-10997-4"
+    },
+    "doi:10.1038/s41586-026-10998-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10998-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "TRI-611, a selective, brain-penetrant molecular glue degrader of ALK",
+      "url": "https://www.nature.com/articles/s41586-026-10998-3"
+    },
+    "doi:10.1038/s41586-026-11001-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11001-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "An operational perturbation proteomics-based virtual cell model",
+      "url": "https://www.nature.com/articles/s41586-026-11001-9"
+    },
+    "doi:10.1038/s41586-026-11002-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11002-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "A serpin–myeloid axis in pancreatic cancer heterogeneity and immune evasion",
+      "url": "https://www.nature.com/articles/s41586-026-11002-8"
+    },
+    "doi:10.1038/s41586-026-11003-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11003-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Proximity-guided graph learning reveals tumour-associated proximity antigens",
+      "url": "https://www.nature.com/articles/s41586-026-11003-7"
+    },
+    "doi:10.1038/s41586-026-11005-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11005-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Predicting genome-wide functional constraints with GPN-Star",
+      "url": "https://www.nature.com/articles/s41586-026-11005-5"
+    },
+    "doi:10.1038/s41586-026-11008-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11008-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Anodic Pd membrane H 2 extraction enhances thermochemical dehydrogenation",
+      "url": "https://www.nature.com/articles/s41586-026-11008-2"
+    },
+    "doi:10.1038/s41586-026-11025-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11025-1",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Breaking timescales with generative sampling of conformational transitions",
+      "url": "https://www.nature.com/articles/s41586-026-11025-1"
+    },
+    "doi:10.1038/s41586-026-11039-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11039-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Within-family effect of ancestry on complex traits in a Mexican population",
+      "url": "https://www.nature.com/articles/s41586-026-11039-9"
+    },
     "doi:10.1038/s41586-026-11091-5": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11091-5",
@@ -577,6 +730,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Ketone homologation via palladium-catalysed decarboxylative rearrangement",
       "url": "https://www.nature.com/articles/s41586-026-11091-5"
+    },
+    "doi:10.1038/s41586-026-11118-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11118-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-09",
+      "seen_at": "2026-09-10T08:41:19+00:00",
+      "title": "Highly efficient base editing at PCSK9 and normal human embryo development",
+      "url": "https://www.nature.com/articles/s41586-026-11118-x"
     },
     "doi:10.1126/science.adw0855": {
       "article_type": "Research Article",
