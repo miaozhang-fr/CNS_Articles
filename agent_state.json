@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-10T08:41:19+00:00",
+  "last_successful_run": "2026-09-11T08:40:55+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -740,6 +740,24 @@
       "title": "Highly efficient base editing at PCSK9 and normal human embryo development",
       "url": "https://www.nature.com/articles/s41586-026-11118-x"
     },
+    "doi:10.1126/science.adp3564": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adp3564",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Open framework–based Brønsted acid–Lewis base interfaces boost proton transfer in the fuel cells",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adp3564?af=R"
+    },
+    "doi:10.1126/science.adt9365": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adt9365",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Unphosphorylated tyrosines mediate PD-1 inhibition of T cell signaling condensate formation",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adt9365?af=R"
+    },
     "doi:10.1126/science.adw0855": {
       "article_type": "Research Article",
       "doi": "10.1126/science.adw0855",
@@ -748,6 +766,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Spatially resolved single-cell atlas reveals the macroevolutionary trajectory of animal hearts",
       "url": "https://www.science.org/doi/abs/10.1126/science.adw0855?af=R"
+    },
+    "doi:10.1126/science.adw4498": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adw4498",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "The parent bodies of Ryugu and Ivuna formed before those of other carbonaceous chondrites",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adw4498?af=R"
     },
     "doi:10.1126/science.adx3863": {
       "article_type": "Research Article",
@@ -776,6 +803,15 @@
       "title": "Measurement of the Λ electric dipole moment with an entangled baryon-antibaryon system",
       "url": "https://www.science.org/doi/abs/10.1126/science.adx7334?af=R"
     },
+    "doi:10.1126/science.ady0339": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.ady0339",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Extensive and differential platinum chemotherapy mutagenesis in livers of children",
+      "url": "https://www.science.org/doi/abs/10.1126/science.ady0339?af=R"
+    },
     "doi:10.1126/science.ady2886": {
       "article_type": "Research Article",
       "doi": "10.1126/science.ady2886",
@@ -794,6 +830,15 @@
       "title": "Autism mutations rewire protein interaction networks to drive neurodevelopmental pathology",
       "url": "https://www.science.org/doi/abs/10.1126/science.ady4523?af=R"
     },
+    "doi:10.1126/science.ady4670": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.ady4670",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Discovery of an intrinsic non-Hermitian phase transition in a bulk condensed-matter system",
+      "url": "https://www.science.org/doi/abs/10.1126/science.ady4670?af=R"
+    },
     "doi:10.1126/science.ady5180": {
       "article_type": "Research Article",
       "doi": "10.1126/science.ady5180",
@@ -811,6 +856,24 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Tumor-derived antioxidants suppress immunity by depriving T cells of reactive oxygen species",
       "url": "https://www.science.org/doi/abs/10.1126/science.adz8203?af=R"
+    },
+    "doi:10.1126/science.aea2249": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aea2249",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "The complete telomere-to-telomere sequence of a mouse Y chromosome",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aea2249?af=R"
+    },
+    "doi:10.1126/science.aea4287": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aea4287",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Lean adipocyte oxylipin signaling restrains breast cancer through ferroptosis",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aea4287?af=R"
     },
     "doi:10.1126/science.aea4611": {
       "article_type": "Research Article",
@@ -839,6 +902,15 @@
       "title": "Nonviral delivery of chemically modified tRNA rescues nonsense mutations in cystic fibrosis",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeb0054?af=R"
     },
+    "doi:10.1126/science.aeb4487": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeb4487",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Hydroclimatic-driven pulse enrichment amplifies riverine microplastic export in developing countries",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeb4487?af=R"
+    },
     "doi:10.1126/science.aeb5274": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aeb5274",
@@ -847,6 +919,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Thermal cycling–induced nitriding increases energy-storage density in titanate ferroelectric films",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeb5274?af=R"
+    },
+    "doi:10.1126/science.aec0002": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec0002",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Chronic type II interferon promotes tumor growth through mitochondrial RNA–induced type I interferon and prostaglandin synthesis",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec0002?af=R"
     },
     "doi:10.1126/science.aec2171": {
       "article_type": "Research Article",
@@ -883,6 +964,33 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Psilocybin prevents chemotherapy-induced peripheral neuropathy through mitochondrial trafficking preservation",
       "url": "https://www.science.org/doi/abs/10.1126/science.aec6116?af=R"
+    },
+    "doi:10.1126/science.aec7337": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec7337",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Endurance beyond 10 billion cycles in wurtzite ferroelectrics by confining nitrogen vacancies",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec7337?af=R"
+    },
+    "doi:10.1126/science.aec8866": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec8866",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Growth rate overrides the benefit of extended growing season from boreal to semiarid conifers",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec8866?af=R"
+    },
+    "doi:10.1126/science.aed0430": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aed0430",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Paleogenomics and habitat modeling reveal temperate Eurasian origins of woolly rhinoceroses",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aed0430?af=R"
     },
     "doi:10.1126/science.aed2974": {
       "article_type": "Research Article",
@@ -974,6 +1082,15 @@
       "title": "Recovering signatures of archaic hominin introgression using ancestral recombination graphs",
       "url": "https://www.science.org/doi/abs/10.1126/science.aef8874?af=R"
     },
+    "doi:10.1126/science.aeg4851": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeg4851",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Mechanism of membrane perforation in rotavirus cell entry",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeg4851?af=R"
+    },
     "doi:10.1126/science.aeg6829": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aeg6829",
@@ -1000,6 +1117,24 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Spontaneous polarization in chemical vapor–deposited polymer films creates large electric fields",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeg9547?af=R"
+    },
+    "doi:10.1126/science.aeh1348": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh1348",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Manipulation of protein translation and stem cell self-renewal by CRISPR activation of rRNA transcription",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh1348?af=R"
+    },
+    "doi:10.1126/science.aeh3697": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh3697",
+      "journal": "Science",
+      "publication_date": "2026-09-10",
+      "seen_at": "2026-09-11T08:40:55+00:00",
+      "title": "Giant tunneling electroresistance in sliding ferroelectrics",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh3697?af=R"
     },
     "doi:10.1126/science.aeh4856": {
       "article_type": "Research Article",
