@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-15T08:40:14+00:00",
+  "last_successful_run": "2026-09-16T08:39:53+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -748,6 +748,15 @@
       "seen_at": "2026-09-15T08:40:14+00:00",
       "title": "Encoded and non-genetic protein variants expand human functional proteome",
       "url": "https://www.nature.com/articles/s41586-026-11124-z"
+    },
+    "doi:10.1038/s41586-026-11139-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11139-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-15",
+      "seen_at": "2026-09-16T08:39:53+00:00",
+      "title": "Quality control of glycogen through direct ubiquitylation by RNF213",
+      "url": "https://www.nature.com/articles/s41586-026-11139-6"
     },
     "doi:10.1126/science.adp3564": {
       "article_type": "Research Article",
