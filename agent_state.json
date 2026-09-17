@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-16T08:39:53+00:00",
+  "last_successful_run": "2026-09-17T08:41:51+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -425,6 +425,15 @@
       "title": "Granule cells reorient cortical trajectories to separate contexts",
       "url": "https://www.nature.com/articles/s41586-026-10946-1"
     },
+    "doi:10.1038/s41586-026-10948-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10948-z",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Molecular-level observation of the self-assembly of a virus-like particle",
+      "url": "https://www.nature.com/articles/s41586-026-10948-z"
+    },
     "doi:10.1038/s41586-026-10949-y": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10949-y",
@@ -587,6 +596,15 @@
       "title": "Atmospheric CH 4 plateau sustained by NO x emission rise and southward shift",
       "url": "https://www.nature.com/articles/s41586-026-10983-w"
     },
+    "doi:10.1038/s41586-026-10985-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10985-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Overmassive black holes and little red dots naturally form in simulations",
+      "url": "https://www.nature.com/articles/s41586-026-10985-8"
+    },
     "doi:10.1038/s41586-026-10986-7": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10986-7",
@@ -641,6 +659,15 @@
       "title": "TM184C is a GPCR-like regulator of intercellular exchange and autophagy",
       "url": "https://www.nature.com/articles/s41586-026-10993-8"
     },
+    "doi:10.1038/s41586-026-10996-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10996-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "A thermodynamically favoured molecular computer",
+      "url": "https://www.nature.com/articles/s41586-026-10996-5"
+    },
     "doi:10.1038/s41586-026-10997-4": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10997-4",
@@ -658,6 +685,15 @@
       "seen_at": "2026-09-10T08:41:19+00:00",
       "title": "TRI-611, a selective, brain-penetrant molecular glue degrader of ALK",
       "url": "https://www.nature.com/articles/s41586-026-10998-3"
+    },
+    "doi:10.1038/s41586-026-11000-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11000-w",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Heterogeneous photonic integration of single-crystalline nanomembranes",
+      "url": "https://www.nature.com/articles/s41586-026-11000-w"
     },
     "doi:10.1038/s41586-026-11001-9": {
       "article_type": "Article",
@@ -704,6 +740,96 @@
       "title": "Anodic Pd membrane H 2 extraction enhances thermochemical dehydrogenation",
       "url": "https://www.nature.com/articles/s41586-026-11008-2"
     },
+    "doi:10.1038/s41586-026-11011-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11011-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Continuous-wave laser absorption spectroscopy of the thorium-229 nucleus",
+      "url": "https://www.nature.com/articles/s41586-026-11011-7"
+    },
+    "doi:10.1038/s41586-026-11012-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11012-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Scalable near-real-time Bayesian phylogenetics for outbreaks with Delphy",
+      "url": "https://www.nature.com/articles/s41586-026-11012-6"
+    },
+    "doi:10.1038/s41586-026-11013-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11013-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Development of a random background to understand ligand optimization",
+      "url": "https://www.nature.com/articles/s41586-026-11013-5"
+    },
+    "doi:10.1038/s41586-026-11014-4": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11014-4",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "A retinoic acid autoregulatory loop governing prefrontal–motor arealization",
+      "url": "https://www.nature.com/articles/s41586-026-11014-4"
+    },
+    "doi:10.1038/s41586-026-11015-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11015-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Electrically controllable superconducting memory effect in UTe 2",
+      "url": "https://www.nature.com/articles/s41586-026-11015-3"
+    },
+    "doi:10.1038/s41586-026-11018-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11018-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Predictors and prevalence of support for white nationalism in the United States",
+      "url": "https://www.nature.com/articles/s41586-026-11018-0"
+    },
+    "doi:10.1038/s41586-026-11019-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11019-z",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Road transport of trapped antiprotons",
+      "url": "https://www.nature.com/articles/s41586-026-11019-z"
+    },
+    "doi:10.1038/s41586-026-11020-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11020-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Mitochondrial fission factor senses and governs ferroptosis",
+      "url": "https://www.nature.com/articles/s41586-026-11020-6"
+    },
+    "doi:10.1038/s41586-026-11021-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11021-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Transcriptional activation of plant immunity by salicylic acid",
+      "url": "https://www.nature.com/articles/s41586-026-11021-5"
+    },
+    "doi:10.1038/s41586-026-11024-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11024-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Targeted genomic integration and rearrangement using prime assembly",
+      "url": "https://www.nature.com/articles/s41586-026-11024-2"
+    },
     "doi:10.1038/s41586-026-11025-1": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11025-1",
@@ -713,6 +839,51 @@
       "title": "Breaking timescales with generative sampling of conformational transitions",
       "url": "https://www.nature.com/articles/s41586-026-11025-1"
     },
+    "doi:10.1038/s41586-026-11026-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11026-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Topographic structure and function of locus coeruleus noradrenaline neurons",
+      "url": "https://www.nature.com/articles/s41586-026-11026-0"
+    },
+    "doi:10.1038/s41586-026-11030-4": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11030-4",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Mutational constraints on RSV F and its neutralization by antibodies",
+      "url": "https://www.nature.com/articles/s41586-026-11030-4"
+    },
+    "doi:10.1038/s41586-026-11032-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11032-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Developmental xenocortication using human-derived organoids in mice",
+      "url": "https://www.nature.com/articles/s41586-026-11032-2"
+    },
+    "doi:10.1038/s41586-026-11034-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11034-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Cohesin reshapes replication fork contacts to aid fork slowing and reversal",
+      "url": "https://www.nature.com/articles/s41586-026-11034-0"
+    },
+    "doi:10.1038/s41586-026-11035-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11035-z",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Evolution and heterogeneity of lethal metastatic bladder cancer subtypes",
+      "url": "https://www.nature.com/articles/s41586-026-11035-z"
+    },
     "doi:10.1038/s41586-026-11039-9": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11039-9",
@@ -721,6 +892,51 @@
       "seen_at": "2026-09-10T08:41:19+00:00",
       "title": "Within-family effect of ancestry on complex traits in a Mexican population",
       "url": "https://www.nature.com/articles/s41586-026-11039-9"
+    },
+    "doi:10.1038/s41586-026-11042-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11042-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Electroluminescent photoresists extending lithographic scaling to OLEDs",
+      "url": "https://www.nature.com/articles/s41586-026-11042-0"
+    },
+    "doi:10.1038/s41586-026-11044-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11044-y",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Reimagining research papers as interactive and reliable AI agents",
+      "url": "https://www.nature.com/articles/s41586-026-11044-y"
+    },
+    "doi:10.1038/s41586-026-11045-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11045-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Rapid patient-specific neural networks for X-ray to volume registration",
+      "url": "https://www.nature.com/articles/s41586-026-11045-x"
+    },
+    "doi:10.1038/s41586-026-11055-9": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11055-9",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Identification of broadly tumour-reactive γδ TCRs from multiple myeloma",
+      "url": "https://www.nature.com/articles/s41586-026-11055-9"
+    },
+    "doi:10.1038/s41586-026-11057-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11057-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Sex without crossovers mimics clonal reproduction in Rhynchospora tenuis",
+      "url": "https://www.nature.com/articles/s41586-026-11057-7"
     },
     "doi:10.1038/s41586-026-11091-5": {
       "article_type": "Article",
@@ -739,6 +955,15 @@
       "seen_at": "2026-09-10T08:41:19+00:00",
       "title": "Highly efficient base editing at PCSK9 and normal human embryo development",
       "url": "https://www.nature.com/articles/s41586-026-11118-x"
+    },
+    "doi:10.1038/s41586-026-11123-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11123-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-16",
+      "seen_at": "2026-09-17T08:41:51+00:00",
+      "title": "Mechanisms of Transcriptional Regulation by Salicylic Acid Receptors",
+      "url": "https://www.nature.com/articles/s41586-026-11123-0"
     },
     "doi:10.1038/s41586-026-11124-z": {
       "article_type": "Article",
