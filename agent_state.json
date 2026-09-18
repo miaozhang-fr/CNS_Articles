@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-17T08:41:51+00:00",
+  "last_successful_run": "2026-09-18T08:40:45+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -128,6 +128,15 @@
       "title": "Co-option of lysosomal machinery shapes the evolution of the intracellular photosymbiosis supporting coral reefs",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00701-4?rss=yes"
     },
+    "doi:10.1016/j.cell.2026.06.028": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.028",
+      "journal": "Cell",
+      "publication_date": "2026-07-16",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Boron-bridged GIPCs stabilize cell wall anchoring and PIN polar domains",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00748-8?rss=yes"
+    },
     "doi:10.1016/j.cell.2026.06.031": {
       "article_type": "Article",
       "doi": "10.1016/j.cell.2026.06.031",
@@ -182,6 +191,33 @@
       "title": "A domestication-selected enhancer coordinates source-sink balance to improve harvest index and yield in maize",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00758-0?rss=yes"
     },
+    "doi:10.1016/j.cell.2026.06.039": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.039",
+      "journal": "Cell",
+      "publication_date": "2026-07-24",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Dynamic dimer-of-dimers architecture defines Mg2+ transport in human CNNM4",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00759-2?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.06.040": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.06.040",
+      "journal": "Cell",
+      "publication_date": "2026-07-22",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "The intrinsic cardiac nervous system is essential for cardiac function and survival",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00760-9?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.008": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.008",
+      "journal": "Cell",
+      "publication_date": "2026-08-04",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Distinct cellular phenotypes of language and executive decline in amyotrophic lateral sclerosis",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00806-8?rss=yes"
+    },
     "doi:10.1016/j.cell.2026.07.010": {
       "article_type": "Article",
       "doi": "10.1016/j.cell.2026.07.010",
@@ -190,6 +226,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Basement membrane turnover controls cell shape",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00808-1?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.024": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.024",
+      "journal": "Cell",
+      "publication_date": "2026-08-11",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "The sex and reproductive plasticity of intestinal muscles instruct gut size",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00822-6?rss=yes"
     },
     "doi:10.1016/j.cell.2026.07.028": {
       "article_type": "Article",
@@ -245,6 +290,24 @@
       "title": "Genomics and social practices at Mogou and other Gansu sites during prehistoric trans-Eurasian exchange",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00919-0?rss=yes"
     },
+    "doi:10.1016/j.cell.2026.07.052": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.052",
+      "journal": "Cell",
+      "publication_date": "2026-08-31",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Predicting cellular responses to perturbation across diverse contexts with State",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00921-9?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.07.054": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.07.054",
+      "journal": "Cell",
+      "publication_date": "2026-08-19",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Synthetic transcription factors designed by domain recombination enhance CAR T cell antitumor function",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00923-2?rss=yes"
+    },
     "doi:10.1016/j.cell.2026.08.014": {
       "article_type": "Article",
       "doi": "10.1016/j.cell.2026.08.014",
@@ -271,6 +334,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "The complete gustatory connectome of adult Drosophila reveals how taste guides feeding, foraging, and social behavior",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00943-8?rss=yes"
+    },
+    "doi:10.1016/j.cell.2026.08.026": {
+      "article_type": "Article",
+      "doi": "10.1016/j.cell.2026.08.026",
+      "journal": "Cell",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "An open benchmark and language models for AI in aging biology",
+      "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00999-2?rss=yes"
     },
     "doi:10.1038/s41586-026-10468-w": {
       "article_type": "Article",
@@ -1001,6 +1073,15 @@
       "title": "Unphosphorylated tyrosines mediate PD-1 inhibition of T cell signaling condensate formation",
       "url": "https://www.science.org/doi/abs/10.1126/science.adt9365?af=R"
     },
+    "doi:10.1126/science.adv1295": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adv1295",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Ancient DNA unveils distinctive ancestries in the Bronze and Iron Ages of East Tianshan",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adv1295?af=R"
+    },
     "doi:10.1126/science.adw0855": {
       "article_type": "Research Article",
       "doi": "10.1126/science.adw0855",
@@ -1028,6 +1109,15 @@
       "title": "Uneven TCR chain pairing constraints govern epitope recognition",
       "url": "https://www.science.org/doi/abs/10.1126/science.adx3863?af=R"
     },
+    "doi:10.1126/science.adx5917": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adx5917",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Nuclear tests at Mt. Mantap have reactivated intraplate faults",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adx5917?af=R"
+    },
     "doi:10.1126/science.adx6059": {
       "article_type": "Research Article",
       "doi": "10.1126/science.adx6059",
@@ -1045,6 +1135,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Measurement of the Λ electric dipole moment with an entangled baryon-antibaryon system",
       "url": "https://www.science.org/doi/abs/10.1126/science.adx7334?af=R"
+    },
+    "doi:10.1126/science.adx9928": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adx9928",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Protecting tropical forests is more cost-effective for biodiversity and climate than restoration",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adx9928?af=R"
     },
     "doi:10.1126/science.ady0339": {
       "article_type": "Research Article",
@@ -1091,6 +1190,33 @@
       "title": "Thalamic NRXN1-mediated input to human cortical progenitors drives excitatory neurogenesis",
       "url": "https://www.science.org/doi/abs/10.1126/science.ady5180?af=R"
     },
+    "doi:10.1126/science.ady6372": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.ady6372",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Multi-organelle signatures map cell-state diversity and metabolic adaptation in tissues",
+      "url": "https://www.science.org/doi/abs/10.1126/science.ady6372?af=R"
+    },
+    "doi:10.1126/science.adz0521": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adz0521",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Extreme loss suppression in an ultracold molecular gas with widely tunable dipolar interactions",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adz0521?af=R"
+    },
+    "doi:10.1126/science.adz6688": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adz6688",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Transcriptome-based classification in mice with ASD-risk mutations",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adz6688?af=R"
+    },
     "doi:10.1126/science.adz8203": {
       "article_type": "Research Article",
       "doi": "10.1126/science.adz8203",
@@ -1099,6 +1225,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Tumor-derived antioxidants suppress immunity by depriving T cells of reactive oxygen species",
       "url": "https://www.science.org/doi/abs/10.1126/science.adz8203?af=R"
+    },
+    "doi:10.1126/science.adz9952": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adz9952",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Fast, continuous, and coherent atom reloading in a neutral-atom qubit array",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adz9952?af=R"
     },
     "doi:10.1126/science.aea2249": {
       "article_type": "Research Article",
@@ -1172,6 +1307,15 @@
       "title": "Chronic type II interferon promotes tumor growth through mitochondrial RNA–induced type I interferon and prostaglandin synthesis",
       "url": "https://www.science.org/doi/abs/10.1126/science.aec0002?af=R"
     },
+    "doi:10.1126/science.aec0473": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec0473",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Germline EGFR T790M mutation and lung cancer risk",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec0473?af=R"
+    },
     "doi:10.1126/science.aec2171": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aec2171",
@@ -1190,6 +1334,15 @@
       "title": "Genomic predisposition is associated with the direction of sex chromosome evolution",
       "url": "https://www.science.org/doi/abs/10.1126/science.aec3449?af=R"
     },
+    "doi:10.1126/science.aec4071": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec4071",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Atmospheric methane lifetime during the Last Glacial Maximum was reduced owing to dust-mediated chlorine chemistry",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec4071?af=R"
+    },
     "doi:10.1126/science.aec5252": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aec5252",
@@ -1207,6 +1360,24 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Psilocybin prevents chemotherapy-induced peripheral neuropathy through mitochondrial trafficking preservation",
       "url": "https://www.science.org/doi/abs/10.1126/science.aec6116?af=R"
+    },
+    "doi:10.1126/science.aec6129": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec6129",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "An expert-level generalist AI for abdominal CT diagnosis",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec6129?af=R"
+    },
+    "doi:10.1126/science.aec7230": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec7230",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Splenic regulation of systemic platelet activation state",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec7230?af=R"
     },
     "doi:10.1126/science.aec7337": {
       "article_type": "Research Article",
@@ -1325,6 +1496,15 @@
       "title": "Recovering signatures of archaic hominin introgression using ancestral recombination graphs",
       "url": "https://www.science.org/doi/abs/10.1126/science.aef8874?af=R"
     },
+    "doi:10.1126/science.aeg3946": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeg3946",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Disorder-promoted stability",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeg3946?af=R"
+    },
     "doi:10.1126/science.aeg4851": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aeg4851",
@@ -1396,6 +1576,33 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "A necroptotic-to-apoptotic signaling axis underlies inflammatory bowel disease",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeh7112?af=R"
+    },
+    "doi:10.1126/science.aeh7535": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh7535",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "Quantum jumps of sound",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh7535?af=R"
+    },
+    "doi:10.1126/science.aei0498": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aei0498",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "A noncontiguous code for RNA-guided DNA recognition at the origin of CRISPR-Cas",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aei0498?af=R"
+    },
+    "doi:10.1126/science.aei3472": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aei3472",
+      "journal": "Science",
+      "publication_date": "2026-09-17",
+      "seen_at": "2026-09-18T08:40:45+00:00",
+      "title": "VIPR RNA-guided DNA recognition by noncontiguous geometric triplex formation",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aei3472?af=R"
     },
     "doi:10.1126/science.aej0194": {
       "article_type": "Research Article",
