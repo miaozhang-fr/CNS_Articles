@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-22T08:39:11+00:00",
+  "last_successful_run": "2026-09-24T08:42:42+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -344,6 +344,24 @@
       "title": "An open benchmark and language models for AI in aging biology",
       "url": "https://www.cell.com/cell/fulltext/S0092-8674(26)00999-2?rss=yes"
     },
+    "doi:10.1038/s41586-025-09573-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-025-09573-z",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Single-cell atlas of transcriptomic vulnerability across brain disorders",
+      "url": "https://www.nature.com/articles/s41586-025-09573-z"
+    },
+    "doi:10.1038/s41586-026-10271-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10271-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Lifespan single-cell transcriptomic atlas of the human prefrontal cortex",
+      "url": "https://www.nature.com/articles/s41586-026-10271-7"
+    },
     "doi:10.1038/s41586-026-10468-w": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-10468-w",
@@ -379,6 +397,15 @@
       "seen_at": "2026-09-03T08:40:34+00:00",
       "title": "Exploring baryon semileptonic decays through polarization and entanglement",
       "url": "https://www.nature.com/articles/s41586-026-10818-8"
+    },
+    "doi:10.1038/s41586-026-10836-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10836-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Single-nucleus transcriptome-wide association study of human brain disorders",
+      "url": "https://www.nature.com/articles/s41586-026-10836-6"
     },
     "doi:10.1038/s41586-026-10876-y": {
       "article_type": "Article",
@@ -758,6 +785,15 @@
       "title": "TRI-611, a selective, brain-penetrant molecular glue degrader of ALK",
       "url": "https://www.nature.com/articles/s41586-026-10998-3"
     },
+    "doi:10.1038/s41586-026-10999-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-10999-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Gravitational torque drives multidecadal variations in length of day",
+      "url": "https://www.nature.com/articles/s41586-026-10999-2"
+    },
     "doi:10.1038/s41586-026-11000-w": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11000-w",
@@ -802,6 +838,15 @@
       "seen_at": "2026-09-10T08:41:19+00:00",
       "title": "Predicting genome-wide functional constraints with GPN-Star",
       "url": "https://www.nature.com/articles/s41586-026-11005-5"
+    },
+    "doi:10.1038/s41586-026-11007-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11007-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Reference genomes and fossils revise bat family phylogeny and biogeography",
+      "url": "https://www.nature.com/articles/s41586-026-11007-3"
     },
     "doi:10.1038/s41586-026-11008-2": {
       "article_type": "Article",
@@ -856,6 +901,15 @@
       "seen_at": "2026-09-17T08:41:51+00:00",
       "title": "Electrically controllable superconducting memory effect in UTe 2",
       "url": "https://www.nature.com/articles/s41586-026-11015-3"
+    },
+    "doi:10.1038/s41586-026-11016-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11016-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Sequence-encoded hexagonal lattices in multichannel peptide nanofibrils",
+      "url": "https://www.nature.com/articles/s41586-026-11016-2"
     },
     "doi:10.1038/s41586-026-11018-0": {
       "article_type": "Article",
@@ -920,6 +974,24 @@
       "title": "Topographic structure and function of locus coeruleus noradrenaline neurons",
       "url": "https://www.nature.com/articles/s41586-026-11026-0"
     },
+    "doi:10.1038/s41586-026-11028-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11028-y",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "A methanogen hydrolase reveals the structure of archaeal peptidoglycan",
+      "url": "https://www.nature.com/articles/s41586-026-11028-y"
+    },
+    "doi:10.1038/s41586-026-11029-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11029-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Lsp2 links mTORC1 to TOP mRNA translation and lifespan in Drosophila",
+      "url": "https://www.nature.com/articles/s41586-026-11029-x"
+    },
     "doi:10.1038/s41586-026-11030-4": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11030-4",
@@ -929,6 +1001,15 @@
       "title": "Mutational constraints on RSV F and its neutralization by antibodies",
       "url": "https://www.nature.com/articles/s41586-026-11030-4"
     },
+    "doi:10.1038/s41586-026-11031-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11031-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Lsp2 links early-life diet to adult translation and lifespan in Drosophila",
+      "url": "https://www.nature.com/articles/s41586-026-11031-3"
+    },
     "doi:10.1038/s41586-026-11032-2": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11032-2",
@@ -937,6 +1018,15 @@
       "seen_at": "2026-09-17T08:41:51+00:00",
       "title": "Developmental xenocortication using human-derived organoids in mice",
       "url": "https://www.nature.com/articles/s41586-026-11032-2"
+    },
+    "doi:10.1038/s41586-026-11033-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11033-1",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Anomalous metal and superconducting phases in rhombohedral graphene",
+      "url": "https://www.nature.com/articles/s41586-026-11033-1"
     },
     "doi:10.1038/s41586-026-11034-0": {
       "article_type": "Article",
@@ -965,6 +1055,24 @@
       "title": "Within-family effect of ancestry on complex traits in a Mexican population",
       "url": "https://www.nature.com/articles/s41586-026-11039-9"
     },
+    "doi:10.1038/s41586-026-11040-2": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11040-2",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Agricultural liming is a carbon sink in the Mississippi River Basin",
+      "url": "https://www.nature.com/articles/s41586-026-11040-2"
+    },
+    "doi:10.1038/s41586-026-11041-1": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11041-1",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Neuronal detection of social actions directs collective escape behaviour",
+      "url": "https://www.nature.com/articles/s41586-026-11041-1"
+    },
     "doi:10.1038/s41586-026-11042-0": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11042-0",
@@ -992,6 +1100,78 @@
       "title": "Rapid patient-specific neural networks for X-ray to volume registration",
       "url": "https://www.nature.com/articles/s41586-026-11045-x"
     },
+    "doi:10.1038/s41586-026-11046-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11046-w",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "The mutational dynamics of the Arabidopsis centromeres",
+      "url": "https://www.nature.com/articles/s41586-026-11046-w"
+    },
+    "doi:10.1038/s41586-026-11048-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11048-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "MMEJ repair of breaks at TA repeats maintains ecDNA and cancer fitness",
+      "url": "https://www.nature.com/articles/s41586-026-11048-8"
+    },
+    "doi:10.1038/s41586-026-11049-7": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11049-7",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Banking records reveal characteristics of financial abuse",
+      "url": "https://www.nature.com/articles/s41586-026-11049-7"
+    },
+    "doi:10.1038/s41586-026-11050-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11050-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "The lipidomic architecture of the mouse brain",
+      "url": "https://www.nature.com/articles/s41586-026-11050-0"
+    },
+    "doi:10.1038/s41586-026-11051-z": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11051-z",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Hepatocytes promote liver metastasis of pancreatic cancer by providing serine",
+      "url": "https://www.nature.com/articles/s41586-026-11051-z"
+    },
+    "doi:10.1038/s41586-026-11052-y": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11052-y",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "TRAM promotes Toll-like-receptor-free myddosome signal transduction",
+      "url": "https://www.nature.com/articles/s41586-026-11052-y"
+    },
+    "doi:10.1038/s41586-026-11053-x": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11053-x",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "The gene-regulatory evolution of the human skeleton",
+      "url": "https://www.nature.com/articles/s41586-026-11053-x"
+    },
+    "doi:10.1038/s41586-026-11054-w": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11054-w",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "mTORC1 drives cell-autonomous astrocyte reactivity in tuberous sclerosis",
+      "url": "https://www.nature.com/articles/s41586-026-11054-w"
+    },
     "doi:10.1038/s41586-026-11055-9": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11055-9",
@@ -1000,6 +1180,15 @@
       "seen_at": "2026-09-17T08:41:51+00:00",
       "title": "Identification of broadly tumour-reactive γδ TCRs from multiple myeloma",
       "url": "https://www.nature.com/articles/s41586-026-11055-9"
+    },
+    "doi:10.1038/s41586-026-11056-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11056-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "A design approach for bitopic kinase inhibitors",
+      "url": "https://www.nature.com/articles/s41586-026-11056-8"
     },
     "doi:10.1038/s41586-026-11057-7": {
       "article_type": "Article",
@@ -1010,6 +1199,51 @@
       "title": "Sex without crossovers mimics clonal reproduction in Rhynchospora tenuis",
       "url": "https://www.nature.com/articles/s41586-026-11057-7"
     },
+    "doi:10.1038/s41586-026-11058-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11058-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "The anthropogenic fingerprint on emerging infectious diseases",
+      "url": "https://www.nature.com/articles/s41586-026-11058-6"
+    },
+    "doi:10.1038/s41586-026-11059-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11059-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Targeting ZMYND8 unleashes IL-2 signalling to override T cell exhaustion",
+      "url": "https://www.nature.com/articles/s41586-026-11059-5"
+    },
+    "doi:10.1038/s41586-026-11069-3": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11069-3",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Stacking-induced direct band gap in CVD-grown 1H MoS 2 bilayers",
+      "url": "https://www.nature.com/articles/s41586-026-11069-3"
+    },
+    "doi:10.1038/s41586-026-11072-8": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11072-8",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Lu + optical frequency references with accuracy verified at the 19th digit",
+      "url": "https://www.nature.com/articles/s41586-026-11072-8"
+    },
+    "doi:10.1038/s41586-026-11074-6": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11074-6",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Organic two-dimensional van der Waals heterostructures",
+      "url": "https://www.nature.com/articles/s41586-026-11074-6"
+    },
     "doi:10.1038/s41586-026-11091-5": {
       "article_type": "Article",
       "doi": "10.1038/s41586-026-11091-5",
@@ -1018,6 +1252,15 @@
       "seen_at": "2026-09-04T08:42:01+00:00",
       "title": "Ketone homologation via palladium-catalysed decarboxylative rearrangement",
       "url": "https://www.nature.com/articles/s41586-026-11091-5"
+    },
+    "doi:10.1038/s41586-026-11102-5": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11102-5",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "A quadruped robot designed to complete a marathon on a single battery charge",
+      "url": "https://www.nature.com/articles/s41586-026-11102-5"
     },
     "doi:10.1038/s41586-026-11118-x": {
       "article_type": "Article",
@@ -1063,6 +1306,15 @@
       "seen_at": "2026-09-22T08:39:11+00:00",
       "title": "Chemist-aligned retrosynthesis by ensembling diverse inductive bias models",
       "url": "https://www.nature.com/articles/s41586-026-11160-9"
+    },
+    "doi:10.1038/s41586-026-11169-0": {
+      "article_type": "Article",
+      "doi": "10.1038/s41586-026-11169-0",
+      "journal": "Nature",
+      "publication_date": "2026-09-23",
+      "seen_at": "2026-09-24T08:42:42+00:00",
+      "title": "Chiral oxazolidinones via biocatalytic aziridination of unactivated alkenes",
+      "url": "https://www.nature.com/articles/s41586-026-11169-0"
     },
     "doi:10.1126/science.adp3564": {
       "article_type": "Research Article",
