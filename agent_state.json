@@ -1,6 +1,6 @@
 {
   "initialized": true,
-  "last_successful_run": "2026-09-24T08:42:42+00:00",
+  "last_successful_run": "2026-09-25T08:41:12+00:00",
   "seen_papers": {
     "doi:10.1016/j.cell.2026.05.018": {
       "article_type": "Article",
@@ -1325,6 +1325,15 @@
       "title": "Open framework–based Brønsted acid–Lewis base interfaces boost proton transfer in the fuel cells",
       "url": "https://www.science.org/doi/abs/10.1126/science.adp3564?af=R"
     },
+    "doi:10.1126/science.adq7553": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adq7553",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Ancient introgression drives wild boar expansion and phenotypic diversification of domestic pigs",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adq7553?af=R"
+    },
     "doi:10.1126/science.adt9365": {
       "article_type": "Research Article",
       "doi": "10.1126/science.adt9365",
@@ -1333,6 +1342,24 @@
       "seen_at": "2026-09-11T08:40:55+00:00",
       "title": "Unphosphorylated tyrosines mediate PD-1 inhibition of T cell signaling condensate formation",
       "url": "https://www.science.org/doi/abs/10.1126/science.adt9365?af=R"
+    },
+    "doi:10.1126/science.adu1550": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adu1550",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "2D theoretically twistable material database",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adu1550?af=R"
+    },
+    "doi:10.1126/science.adu2107": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adu2107",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Two-dimensional topological quantum chemistry and catalog of topological materials",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adu2107?af=R"
     },
     "doi:10.1126/science.adv1295": {
       "article_type": "Research Article",
@@ -1360,6 +1387,24 @@
       "seen_at": "2026-09-11T08:40:55+00:00",
       "title": "The parent bodies of Ryugu and Ivuna formed before those of other carbonaceous chondrites",
       "url": "https://www.science.org/doi/abs/10.1126/science.adw4498?af=R"
+    },
+    "doi:10.1126/science.adw7709": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adw7709",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Neural evidence that dogs segment the speech they hear with a humanlike consonant bias",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adw7709?af=R"
+    },
+    "doi:10.1126/science.adw8520": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adw8520",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Ceramide synthesis mediates colorectal cancer metastasis through a YAP-driven regenerative program",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adw8520?af=R"
     },
     "doi:10.1126/science.adx3863": {
       "article_type": "Research Article",
@@ -1468,6 +1513,24 @@
       "seen_at": "2026-09-18T08:40:45+00:00",
       "title": "Extreme loss suppression in an ultracold molecular gas with widely tunable dipolar interactions",
       "url": "https://www.science.org/doi/abs/10.1126/science.adz0521?af=R"
+    },
+    "doi:10.1126/science.adz5300": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adz5300",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "An in-body networking system for communication between wearable and implantable therapeutics",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adz5300?af=R"
+    },
+    "doi:10.1126/science.adz6415": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.adz6415",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "How 8 years of social and individual learning interact to shape ecological competence in orangutans",
+      "url": "https://www.science.org/doi/abs/10.1126/science.adz6415?af=R"
     },
     "doi:10.1126/science.adz6688": {
       "article_type": "Research Article",
@@ -1613,6 +1676,15 @@
       "title": "A tripartite genetic conflict system controls hybrid sterility in rice",
       "url": "https://www.science.org/doi/abs/10.1126/science.aec5252?af=R"
     },
+    "doi:10.1126/science.aec5473": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aec5473",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Mammals produce cyclo-octasulfur to suppress lipid peroxidation and ferroptosis",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aec5473?af=R"
+    },
     "doi:10.1126/science.aec6116": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aec6116",
@@ -1721,6 +1793,15 @@
       "title": "Foreshock productivity and rupture nucleation in injection-induced earthquakes in western Canada",
       "url": "https://www.science.org/doi/abs/10.1126/science.aed9893?af=R"
     },
+    "doi:10.1126/science.aee1630": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aee1630",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Unlocking cycle life of lithium metal batteries",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aee1630?af=R"
+    },
     "doi:10.1126/science.aee1792": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aee1792",
@@ -1738,6 +1819,24 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Direct evaporation of single-crystal metal contacts for 2D semiconductors",
       "url": "https://www.science.org/doi/abs/10.1126/science.aee3132?af=R"
+    },
+    "doi:10.1126/science.aef3511": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aef3511",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Embracing triplet nitrenes for C-to-N replacement of complex bicyclic (hetero)aryl azides",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aef3511?af=R"
+    },
+    "doi:10.1126/science.aef5487": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aef5487",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Prussian blue regulates ion dynamics in perovskite solar cells",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aef5487?af=R"
     },
     "doi:10.1126/science.aef8268": {
       "article_type": "Research Article",
@@ -1765,6 +1864,15 @@
       "seen_at": "2026-09-18T08:40:45+00:00",
       "title": "Disorder-promoted stability",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeg3946?af=R"
+    },
+    "doi:10.1126/science.aeg4791": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeg4791",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Senescence-directed nanotherapy ameliorates fibrosis and overcomes immune exclusion in cancer",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeg4791?af=R"
     },
     "doi:10.1126/science.aeg4851": {
       "article_type": "Research Article",
@@ -1811,6 +1919,15 @@
       "title": "Manipulation of protein translation and stem cell self-renewal by CRISPR activation of rRNA transcription",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeh1348?af=R"
     },
+    "doi:10.1126/science.aeh3441": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aeh3441",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Escape of the BC200 gene to a human poxvirus reveals its persistent transposition in primates",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aeh3441?af=R"
+    },
     "doi:10.1126/science.aeh3697": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aeh3697",
@@ -1847,6 +1964,15 @@
       "title": "Quantum jumps of sound",
       "url": "https://www.science.org/doi/abs/10.1126/science.aeh7535?af=R"
     },
+    "doi:10.1126/science.aei0062": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aei0062",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Fibroblasts restrain gut inflammation by IGF1-dependent regulation of innate lymphocytes",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aei0062?af=R"
+    },
     "doi:10.1126/science.aei0498": {
       "article_type": "Research Article",
       "doi": "10.1126/science.aei0498",
@@ -1855,6 +1981,15 @@
       "seen_at": "2026-09-18T08:40:45+00:00",
       "title": "A noncontiguous code for RNA-guided DNA recognition at the origin of CRISPR-Cas",
       "url": "https://www.science.org/doi/abs/10.1126/science.aei0498?af=R"
+    },
+    "doi:10.1126/science.aei2836": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aei2836",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Conformal oxides decouple chemical stability and energetics at NiOx/perovskite interfaces",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aei2836?af=R"
     },
     "doi:10.1126/science.aei3472": {
       "article_type": "Research Article",
@@ -1873,6 +2008,15 @@
       "seen_at": "2026-09-01T14:03:40+00:00",
       "title": "Iron-catalyzed [1+1+1] cyclopropanation by sequential coupling of an ester to two carbenes",
       "url": "https://www.science.org/doi/abs/10.1126/science.aej0194?af=R"
+    },
+    "doi:10.1126/science.aej5896": {
+      "article_type": "Research Article",
+      "doi": "10.1126/science.aej5896",
+      "journal": "Science",
+      "publication_date": "2026-09-24",
+      "seen_at": "2026-09-25T08:41:12+00:00",
+      "title": "Targeting an atypical G protein–coupled receptor signaling pathway for cardiac fibrosis therapy",
+      "url": "https://www.science.org/doi/abs/10.1126/science.aej5896?af=R"
     }
   },
   "version": 1
